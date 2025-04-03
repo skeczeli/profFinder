@@ -113,6 +113,15 @@
         transform: translateY(1px);
       }
 
+      .btn-eliminar {
+        background-color: #e53e3e;
+      }
+
+      .btn-eliminar:hover {
+        background-color: #c53030;
+        transform: translateY(-1px);
+      }
+
       .table-container {
         background-color: white;
         border-radius: 12px;
@@ -234,7 +243,12 @@
             <input type="text" id="prof-id" placeholder="Identificación" />
           </div>
 
-          <button id="guardar-profesor">Guardar Profesor</button>
+          <div style="display: flex; gap: 10px">
+            <button id="guardar-profesor">Guardar Profesor</button>
+            <button id="borrar-profesor" class="btn-eliminar">
+              Eliminar Profesor
+            </button>
+          </div>
         </div>
 
         <div class="table-container">
@@ -268,7 +282,12 @@
             />
           </div>
 
-          <button id="guardar-materia">Guardar Materia</button>
+          <div style="display: flex; gap: 10px">
+            <button id="guardar-materia">Guardar Materia</button>
+            <button id="borrar-materia" class="btn-eliminar">
+              Eliminar Materia
+            </button>
+          </div>
         </div>
 
         <div class="table-container">
@@ -308,7 +327,12 @@
             </select>
           </div>
 
-          <button id="guardar-asignacion">Guardar Asignación</button>
+          <div style="display: flex; gap: 10px">
+            <button id="guardar-asignacion">Guardar Asignación</button>
+            <button id="borrar-asignacion" class="btn-eliminar">
+              Eliminar Asignación
+            </button>
+          </div>
         </div>
 
         <div class="table-container">
