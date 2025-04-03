@@ -261,6 +261,12 @@ app.get("/actor/:id", (req, res) => {
   });
 });
 
+//ADMIN:
+// Ruta para el panel de administración
+app.get("/admin", (req, res) => {
+  res.render("db_admin");
+});
+
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`Servidor en ejecución en http://localhost:${port}`);

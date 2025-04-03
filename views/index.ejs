@@ -12,6 +12,7 @@
         align-items: center;
         height: 100vh;
         margin: 0;
+        position: relative; /* Para posicionar el botón de admin */
       }
 
       h1 {
@@ -46,9 +47,34 @@
       button[type="submit"]:hover {
         background-color: #0056b3;
       }
+
+      /* Estilos para el botón de admin */
+      .admin-button {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background-color: #4d8ad5;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+      }
+
+      .admin-button:hover {
+        background-color: #3a75c4;
+        transform: translateY(-2px);
+      }
     </style>
   </head>
   <body>
+    <!-- Botón de administrador -->
+    <a href="/admin" class="admin-button">Admin</a>
+
     <h1>ProfFinder</h1>
     <form id="searchForm" action="/buscar" method="GET">
       <input
