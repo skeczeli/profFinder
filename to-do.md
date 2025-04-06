@@ -16,11 +16,6 @@ Al hacer eso, volar movies.db y adaptar para nueva db (cambiar actores a profeso
    - Agregar nuevos profesores/materias.
    - Borrar profesores/materias existentes.
 
-3. **Administrar Profesores y Materias**:
-
-   - Agregar nuevos profesores/materias.
-   - Borrar profesores/materias existentes.
-
 ## Conectar MQTT
 
 ### A front (funcionalidades):
@@ -32,9 +27,9 @@ Al hacer eso, volar movies.db y adaptar para nueva db (cambiar actores a profeso
 ### A db (funcionalidades):
 
 1. **Write check-in updates de la tarjeta**:
-   Cuando un profesor marque entrada / salida con la tarjeta, registrarlo en la db (duda relación P-en->aula: cuando sale, no longer en... pero bueno, ver cómo manejamos eso)
+   Cuando un profesor marque entrada / salida con la tarjeta, registrarlo en la db (duda relación P-en->aula: cuando sale, no longer "en" una aula... pero bueno, ver cómo manejamos eso)
 
-2. **Alguna otra de db a MQTT o al revés?**:
+2. **Alguna otra de db a MQTT o al revés??**:
    En todo caso sería de "front" (website) a db a MQTT... pero bueno.
 
 ## Extras
