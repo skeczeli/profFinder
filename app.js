@@ -5,8 +5,20 @@ const ejs = require("ejs");
 const app = express();
 const port = process.env.PORT || 3000;
 
+const session = require('express-session');
+const bodyParser = require('body-parser');
+
 // Serve static files from the "views" directory
 app.use(express.static("views"));
+
+app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+  secret: 'clave_secreta_para_session', // Cambia esto en producción
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Cambiar a true si usas HTTPS
+}));
 
 // Path completo de la base de datos movies.db
 // Por ejemplo 'C:\\Users\\datagrip\\movies.db'
@@ -263,8 +275,44 @@ app.get("/actor/:id", (req, res) => {
 
 //ADMIN:
 // Ruta para el panel de administración
-app.get("/admin", (req, res) => {
-  res.render("db_admin");
+app.get("/admin_login", (req, res) => {
+  res.render("admin_login");
+});
+
+// Middleware para proteger rutas de administrador
+const requireAuth = (req, res, next) => {
+  if (req.session && req.session.isAdmin) {
+      return next();
+  } else {
+      return res.redirect('/admin_login');
+  }
+};
+
+// Credenciales del administrador (en producción, usar base de datos)
+const ADMIN_USERNAME = 'admin';
+const ADMIN_PASSWORD = 'adminpassword'; // Usar hashing en producción
+
+
+app.post('/admin_login', (req, res) => {
+  const { username, password } = req.body;
+  
+  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      // Autenticación exitosa
+      req.session.isAdmin = true;
+      res.redirect('/db_admin');
+  } else {
+      // Autenticación fallida
+      res.render('admin_login', { error: 'Usuario o contraseña incorrectos' });
+  }
+});
+
+app.get('/admin/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/admin_login');
+});
+
+app.get('/db_admin', requireAuth, (req, res) => {
+  res.render('db_admin', { adminLoggedIn: true }); // -------------------------------------
 });
 
 // Iniciar el servidor
