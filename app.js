@@ -2,11 +2,11 @@ const express = require("express");
 const sqlite3 = require("sqlite3");
 const ejs = require("ejs");
 
+require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 3000;
 
 const session = require("express-session");
-const bodyParser = require("body-parser");
 
 // Serve static files from the "views" directory
 app.use(express.static("views"));
@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   session({
-    secret: "clave_secreta_para_session", // Cambia esto en producción
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false }, // Cambiar a true si usas HTTPS
@@ -290,14 +290,14 @@ const requireAuth = (req, res, next) => {
   }
 };
 
-// Credenciales del administrador (en producción, usar base de datos)
-const ADMIN_USERNAME = "admin";
-const ADMIN_PASSWORD = "adminpassword"; // Usar hashing en producción
-
 app.post("/admin_login", (req, res) => {
   const { username, password } = req.body;
 
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+  // Compara con las variables de entorno
+  if (
+    username === process.env.ADMIN_USERNAME &&
+    password === process.env.ADMIN_PASSWORD
+  ) {
     // Autenticación exitosa
     req.session.isAdmin = true;
     res.redirect("/db_admin");
@@ -307,13 +307,18 @@ app.post("/admin_login", (req, res) => {
   }
 });
 
-app.get("/admin/logout", (req, res) => {
-  req.session.destroy();
-  res.redirect("/admin_login");
+app.post("/admin/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Error al destruir la sesión:", err);
+      return res.status(500).send("Error al cerrar sesión.");
+    }
+    res.redirect("/admin_login");
+  });
 });
 
 app.get("/db_admin", requireAuth, (req, res) => {
-  res.render("db_admin", { adminLoggedIn: true }); // -------------------------------------
+  res.render("db_admin");
 });
 
 // Iniciar el servidor

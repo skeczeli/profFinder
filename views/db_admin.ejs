@@ -16,7 +16,6 @@
         margin: 0;
         padding: 20px;
       }
-      
 
       h1 {
         font-size: 2.5rem;
@@ -64,7 +63,7 @@
       }
 
       label {
-        display: block; 
+        display: block;
         font-size: 1rem;
         color: #4a5568;
         margin-bottom: 10px;
@@ -224,16 +223,17 @@
         top: 10px;
         right: 10px;
       }
-
     </style>
   </head>
   <body>
     <a href="/" class="home-button">Home</a>
 
-    <form action="/admin/logout" method="get" class="logout-button">
-      <button type="submit" style = "background-color: #e53e3e">Cerrar sesión</button>
+    <form action="/admin/logout" method="POST" class="logout-button">
+      <button type="submit" style="background-color: #e53e3e">
+        Cerrar sesión
+      </button>
     </form>
-    
+
     <h1>Gestión Académica</h1>
 
     <div class="tab-buttons">
