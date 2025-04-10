@@ -1,6 +1,7 @@
 const express = require("express");
-const sqlite3 = require("sqlite3");
+//const sqlite3 = require("sqlite3");
 const ejs = require("ejs");
+const db = require("./db");
 
 require("dotenv").config();
 const app = express();
@@ -22,6 +23,7 @@ app.use(
   })
 );
 
+/*
 // Path completo de la base de datos movies.db
 // Por ejemplo 'C:\\Users\\datagrip\\movies.db'
 const db = new sqlite3.Database("movies.db", (err) => {
@@ -39,7 +41,46 @@ const db = new sqlite3.Database("movies.db", (err) => {
       console.log("Foreign Keys activadas.");
     }
   });
+});*/
+
+const { Pool } = require("pg");
+
+// Crear una pool de conexiones a PostgreSQL
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT || 5432, // Puerto por defecto de PostgreSQL
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
+
+// Verificar la conexión
+pool.connect((err, client, release) => {
+  if (err) {
+    console.error("Error al conectar a la base de datos:", err.message);
+    return;
+  }
+  console.log("Conectado a la base de datos PostgreSQL.");
+  release();
+});
+
+// Función para ejecutar consultas (agregar después de la creación del pool)
+const query = (text, params, callback) => {
+  return pool.query(text, params, callback);
+};
+
+// Función para ejecutar consultas que devuelven múltiples filas (equivalente a db.all)
+const queryAll = (text, params) => {
+  return new Promise((resolve, reject) => {
+    pool.query(text, params, (err, res) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(res.rows);
+      }
+    });
+  });
+};
 
 // Configurar el motor de plantillas EJS
 app.set("view engine", "ejs");
@@ -321,6 +362,25 @@ app.get("/db_admin", requireAuth, (req, res) => {
   res.render("db_admin");
 });
 
+// Ruta de prueba para verificar conexión a la base de datos
+app.get("/test-db", (req, res) => {
+  db.query("SELECT NOW()", [], (err, result) => {
+    if (err) {
+      console.error("Error al ejecutar consulta de prueba:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Error en la conexión a la base de datos",
+        error: err.message,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Conexión a la base de datos exitosa",
+      timestamp: result.rows[0].now,
+    });
+  });
+});
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`Servidor en ejecución en http://localhost:${port}`);
