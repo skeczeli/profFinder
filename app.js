@@ -207,6 +207,100 @@ app.get("/aula/:id", async (req, res) => {
   }
 });
 
+// --- Rutas de Administración de Profesores ---
+// Ruta para crear un profesor (POST)
+app.post(
+  "/admin/profesores/crear",
+  requireAuth,
+  express.json(),
+  async (req, res) => {
+    const { nombre, email, tarjeta_id } = req.body;
+
+    // Validación básica
+    if (!nombre || !tarjeta_id) {
+      return res.status(400).json({
+        success: false,
+        message: "El nombre y el ID de tarjeta son obligatorios",
+      });
+    }
+
+    try {
+      // Verificar si ya existe un profesor con esa tarjeta_id
+      const existingProf = await db.query(
+        "SELECT profesor_id FROM profesores WHERE tarjeta_id = $1",
+        [tarjeta_id]
+      );
+
+      if (existingProf.rows.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Ya existe un profesor con ese ID de tarjeta",
+        });
+      }
+
+      // Insertar el nuevo profesor
+      const result = await db.query(
+        "INSERT INTO profesores (nombre, email, tarjeta_id) VALUES ($1, $2, $3) RETURNING profesor_id",
+        [nombre, email, tarjeta_id]
+      );
+
+      res.status(201).json({
+        success: true,
+        message: "Profesor creado correctamente",
+        profesor_id: result.rows[0].profesor_id,
+      });
+    } catch (err) {
+      console.error("Error al crear profesor:", err);
+      res.status(500).json({
+        success: false,
+        message: "Error al crear el profesor en la base de datos",
+        error: err.message,
+      });
+    }
+  }
+);
+
+// Ruta para eliminar un profesor (DELETE)
+app.delete(
+  "/admin/profesores/eliminar/:tarjetaId",
+  requireAuth,
+  async (req, res) => {
+    const { tarjetaId } = req.params;
+
+    try {
+      // Verificar si existe el profesor
+      const profesor = await db.query(
+        "SELECT profesor_id FROM profesores WHERE tarjeta_id = $1",
+        [tarjetaId]
+      );
+
+      if (profesor.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Profesor no encontrado",
+        });
+      }
+
+      // Eliminar el profesor
+      await db.query("DELETE FROM profesores WHERE tarjeta_id = $1", [
+        tarjetaId,
+      ]);
+
+      res.json({
+        success: true,
+        message: "Profesor eliminado correctamente",
+      });
+    } catch (err) {
+      console.error("Error al eliminar profesor:", err);
+      res.status(500).json({
+        success: false,
+        message: "Error al eliminar el profesor de la base de datos",
+        error: err.message,
+      });
+    }
+  }
+);
+
 // --- Rutas de Administración ---
 app.get("/admin_login", (req, res) => {
   // Si ya está logueado, quizás redirigir a /db_admin
