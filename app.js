@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const ejs = require("ejs");
 require("dotenv").config(); // Asegúrate que esté al principio
@@ -18,6 +19,8 @@ app.use(
     cookie: { secure: false }, // Cambiar a true si usas HTTPS configurado correctamente
   })
 );
+
+app.use(express.static(path.join(__dirname, "public")));
 
 // Configurar el motor de plantillas EJS
 app.set("view engine", "ejs");
