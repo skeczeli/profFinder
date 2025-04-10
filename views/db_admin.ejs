@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestión Académica</title>
-    <%# Manteniendo tus estilos ya que la estructura depende de ellos %>
+    <!-- Manteniendo tus estilos ya que la estructura depende de ellos -->
     <style>
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -129,10 +129,10 @@
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
         padding: 32px;
         width: 100%;
-        max-width: 900px; /* Ajustado para tablas más anchas */
+        max-width: 900px;
         transition: all 0.3s ease;
         margin-top: 30px;
-        overflow-x: auto; /* Para tablas anchas en móviles */
+        overflow-x: auto;
       }
 
       table {
@@ -145,7 +145,7 @@
         padding: 12px 15px;
         text-align: left;
         border-bottom: 1px solid #e2e8f0;
-        white-space: nowrap; /* Evita que el texto largo rompa líneas */
+        white-space: nowrap;
       }
 
       th {
@@ -171,7 +171,7 @@
         transition: background-color 0.2s;
         width: auto;
         margin-right: 10px;
-        margin-bottom: 10px; /* Espacio entre botones */
+        margin-bottom: 10px;
       }
 
       .collapsible:hover {
@@ -179,23 +179,22 @@
       }
 
       .tab-content {
-        display: none; /* Oculto por defecto, JS lo muestra */
+        display: none;
         width: 100%;
-        /* Estilos para centrar el contenido de la pestaña */
         flex-direction: column;
         align-items: center;
-        gap: 20px; /* Espacio entre form y tabla */
+        gap: 20px;
       }
 
       .tab-buttons {
         margin-bottom: 30px;
-        display: flex; /* Para alinear botones */
-        flex-wrap: wrap; /* Para que quepan en pantallas pequeñas */
-        justify-content: center; /* Centrar botones */
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
       }
 
       .active {
-        display: flex; /* Cambiado a flex para usar align-items */
+        display: flex;
       }
 
       @media (max-width: 800px) {
@@ -229,17 +228,15 @@
 
       .logout-button {
         position: absolute;
-        top: 20px; /* Ajustado para alinear con home */
+        top: 20px;
         right: 20px;
       }
       .logout-button button {
-        /* Estilo específico para el botón dentro del form */
         padding: 12px 24px;
-        width: auto; /* No ocupa todo el ancho */
+        width: auto;
         margin-top: 0;
       }
       .error-message {
-        /* Estilo para mensaje de error */
         color: #e53e3e;
         font-weight: bold;
         text-align: center;
@@ -259,8 +256,8 @@
 
     <h1>Gestión Académica</h1>
 
-    <%# Mostrar mensaje de error si vino del backend %> <% if (typeof error !==
-    'undefined' && error) { %>
+    <!-- Mostrar mensaje de error si vino del backend -->
+    <% if (typeof error !== 'undefined' && error) { %>
     <p class="error-message"><%= error %></p>
     <% } %>
 
@@ -268,7 +265,10 @@
       <button class="collapsible" onclick="openTab('profesores')">
         Profesores
       </button>
-      <button class="collapsible" onclick="openTab('aulas')">Aulas</button>
+      <button class="collapsible" onclick="openTab('aulas')">
+        <!-- AÑADIDO BOTÓN AULAS -->
+        Aulas
+      </button>
       <button class="collapsible" onclick="openTab('materias')">
         Materias
       </button>
@@ -282,7 +282,6 @@
       <div id="profesores" class="tab-content">
         <div class="form-container">
           <h2>Registrar Profesor</h2>
-          <%# Inputs del formulario (sin cambios funcionales aún) %>
           <div class="input-group">
             <label for="prof-nombre">Nombre completo:</label>
             <input
@@ -300,8 +299,7 @@
             />
           </div>
           <div class="input-group">
-            <label for="prof-tarjeta">ID de tarjeta:</label> <%# Cambiado ID a
-            prof-tarjeta %>
+            <label for="prof-tarjeta">ID de tarjeta:</label>
             <input type="text" id="prof-tarjeta" placeholder="Identificación" />
           </div>
           <div style="display: flex; gap: 10px">
@@ -324,12 +322,11 @@
                 <th>Email</th>
                 <th>ID de Tarjeta</th>
                 <th>ID Profesor</th>
-                <%# Añadido ID para referencia %>
               </tr>
             </thead>
             <tbody id="tbody-profesores">
-              <%# Poblado con EJS %> <% if (profesores && profesores.length > 0)
-              { %> <% profesores.forEach(profesor => { %>
+              <% if (profesores && profesores.length > 0) { %> <%
+              profesores.forEach(profesor => { %>
               <tr>
                 <td><%= profesor.nombre %></td>
                 <td><%= profesor.email ? profesor.email : '-' %></td>
@@ -346,9 +343,9 @@
         </div>
       </div>
 
-      <!-- Pestaña de Aulas (NUEVA) -->
+      <!-- Pestaña de Aulas -->
       <div id="aulas" class="tab-content">
-        <%# Podrías añadir un form para aulas aquí si lo necesitas %>
+        <!-- Puedes añadir un form para aulas aquí si lo necesitas -->
         <div class="form-container">
           <h2>Registrar Aula</h2>
           <div class="input-group">
@@ -384,12 +381,11 @@
                 <th>Nombre</th>
                 <th>ESP32 ID</th>
                 <th>ID Aula</th>
-                <%# Añadido ID para referencia %>
               </tr>
             </thead>
             <tbody id="tbody-aulas">
-              <%# Poblado con EJS %> <% if (aulas && aulas.length > 0) { %> <%
-              aulas.forEach(aula => { %>
+              <% if (aulas && aulas.length > 0) { %> <% aulas.forEach(aula => {
+              %>
               <tr>
                 <td><%= aula.nombre %></td>
                 <td><%= aula.esp32_id ? aula.esp32_id : '-' %></td>
@@ -435,12 +431,11 @@
               <tr>
                 <th>Nombre</th>
                 <th>ID Materia</th>
-                <%# Añadido ID %>
               </tr>
             </thead>
             <tbody id="tbody-materias">
-              <%# Poblado con EJS %> <% if (materias && materias.length > 0) {
-              %> <% materias.forEach(materia => { %>
+              <% if (materias && materias.length > 0) { %> <%
+              materias.forEach(materia => { %>
               <tr>
                 <td><%= materia.nombre %></td>
                 <td><%= materia.materia_id %></td>
@@ -463,8 +458,8 @@
             <label for="asign-profesor">Profesor:</label>
             <select id="asign-profesor">
               <option value="">Seleccione un profesor</option>
-              <%# Poblar dropdown con EJS %> <% if (profesores &&
-              profesores.length > 0) { %> <% profesores.forEach(profesor => { %>
+              <% if (profesores && profesores.length > 0) { %> <%
+              profesores.forEach(profesor => { %>
               <option value="<%= profesor.profesor_id %>">
                 <%= profesor.nombre %> (ID: <%= profesor.profesor_id %>)
               </option>
@@ -475,8 +470,8 @@
             <label for="asign-materia">Materia:</label>
             <select id="asign-materia">
               <option value="">Seleccione una materia</option>
-              <%# Poblar dropdown con EJS %> <% if (materias && materias.length
-              > 0) { %> <% materias.forEach(materia => { %>
+              <% if (materias && materias.length > 0) { %> <%
+              materias.forEach(materia => { %>
               <option value="<%= materia.materia_id %>">
                 <%= materia.nombre %> (ID: <%= materia.materia_id %>)
               </option>
@@ -501,33 +496,30 @@
               <tr>
                 <th>Profesor (ID)</th>
                 <th>Materia (ID)</th>
-                <%# Podrías añadir más columnas si la consulta las devuelve %>
               </tr>
             </thead>
             <tbody id="tbody-asignaciones">
-              <%# Esta tabla necesita datos de la relación profesor_materia %>
-              <%# La ruta actual /db_admin NO carga estos datos %>
               <tr>
                 <td colspan="2">
                   Datos no cargados. Se requiere actualizar backend y/o usar
                   JS/AJAX.
                 </td>
               </tr>
-              <%# Ejemplo si tuvieras un array 'asignacionesData' con
-              {prof_nombre, mat_nombre}: %> <%# if (typeof asignacionesData !==
-              'undefined' && asignacionesData.length > 0) { %> <%# Cierre
-              añadido %> <%# asignacionesData.forEach(asig => { %> <%# Cierre
-              añadido %> <%#
-              <tr>
-                <td><%= asig.prof_nombre %></td>
-                <td><%= asig.mat_nombre %></td>
-              </tr>
-              %> <%# Cierre añadido %> <%# }); %> <%# Cierre añadido %> <%# }
-              else { %> <%# Cierre añadido %> <%#
-              <tr>
-                <td colspan="2">No hay asignaciones registradas.</td>
-              </tr>
-              %> <%# Cierre añadido %> <%# } %> <%# Cierre añadido %>
+              <!--
+              Ejemplo si tuvieras un array 'asignacionesData' con {prof_nombre, mat_nombre}:
+              <% if (typeof asignacionesData !== 'undefined' && asignacionesData.length > 0) { %>
+                  <% asignacionesData.forEach(asig => { %>
+                      <tr>
+                        <td><%= asig.prof_nombre %></td>
+                        <td><%= asig.mat_nombre %></td>
+                      </tr>
+                  <% }); %>
+              <% } else { %>
+                      <tr>
+                        <td colspan="2">No hay asignaciones registradas.</td>
+                      </tr>
+              <% } %>
+              -->
             </tbody>
           </table>
         </div>
@@ -535,57 +527,22 @@
     </div>
 
     <script>
-      // Gestión de pestañas (sin cambios)
       function openTab(tabName) {
         const tabContents = document.getElementsByClassName("tab-content");
         for (let i = 0; i < tabContents.length; i++) {
           tabContents[i].style.display = "none";
-          tabContents[i].classList.remove("active"); // Asegura quitar clase active
+          tabContents[i].classList.remove("active");
         }
         const activeTab = document.getElementById(tabName);
         if (activeTab) {
-          activeTab.style.display = "flex"; // Cambiado a flex
+          activeTab.style.display = "flex";
           activeTab.classList.add("active");
         }
       }
 
-      // Inicializar: mostrar la primera pestaña (Profesores) por defecto
       document.addEventListener("DOMContentLoaded", function () {
         openTab("profesores");
       });
-
-      // Aquí iría el CÓDIGO JAVASCRIPT ADICIONAL para:
-      // 1. Capturar clics en los botones "Guardar...", "Eliminar...".
-      // 2. Leer datos de los formularios.
-      // 3. Realizar peticiones fetch (POST, DELETE) a rutas API del backend (que necesitarías crear).
-      // 4. Actualizar las tablas/UI después de una operación exitosa.
-      // Ejemplo MUY básico (no funcional sin backend):
-      /*
-        document.getElementById('guardar-profesor')?.addEventListener('click', async () => {
-            const nombre = document.getElementById('prof-nombre').value;
-            const email = document.getElementById('prof-email').value;
-            const tarjeta = document.getElementById('prof-tarjeta').value;
-            console.log('Intentando guardar profesor:', { nombre, email, tarjeta });
-            alert('Funcionalidad de guardar NO implementada');
-            // try {
-            //     const response = await fetch('/api/profesores', { // Necesitas crear esta ruta API
-            //         method: 'POST',
-            //         headers: { 'Content-Type': 'application/json' },
-            //         body: JSON.stringify({ nombre, email, tarjeta_id: tarjeta })
-            //     });
-            //     if (response.ok) {
-            //         alert('Profesor guardado!');
-            //         // Recargar datos o actualizar tabla dinámicamente
-            //     } else {
-            //         const errorData = await response.json();
-            //         alert('Error al guardar: ' + (errorData.message || response.statusText));
-            //     }
-            // } catch (error) {
-            //     console.error('Error en fetch:', error);
-            //     alert('Error de conexión al intentar guardar.');
-            // }
-        });
-        */
     </script>
   </body>
 </html>
