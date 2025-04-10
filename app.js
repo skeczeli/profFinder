@@ -313,6 +313,125 @@ app.delete(
   }
 );
 
+// Ruta para mostrar el formulario de edición de profesor
+app.get("/admin/profesores/editar/:id", requireAuth, async (req, res) => {
+  const profesorId = req.params.id;
+
+  try {
+    // Obtener datos del profesor
+    const result = await db.query(
+      "SELECT profesor_id, nombre, email, tarjeta_id FROM profesores WHERE profesor_id = $1",
+      [profesorId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).render("error", {
+        message: "Profesor no encontrado",
+        error: { status: 404 },
+      });
+    }
+
+    const profesor = result.rows[0];
+
+    // También obtenemos las materias para potencialmente asignarlas
+    const materias = await db.queryAll(
+      "SELECT materia_id, nombre FROM materias ORDER BY nombre ASC"
+    );
+
+    // Obtener las materias asignadas actualmente al profesor
+    const materiasProfesor = await db.queryAll(
+      `SELECT materia_id FROM profesor_materia WHERE profesor_id = $1`,
+      [profesorId]
+    );
+
+    // Crear un array con los IDs de las materias asignadas
+    const materiasAsignadas = materiasProfesor.map((m) => m.materia_id);
+
+    res.render("profesor_editar", {
+      profesor: profesor,
+      materias: materias,
+      materiasAsignadas: materiasAsignadas,
+      error: null,
+    });
+  } catch (err) {
+    console.error("Error al cargar datos del profesor para editar:", err);
+    res.status(500).render("error", {
+      message: "Error al cargar datos del profesor",
+      error: { status: 500, stack: err.stack },
+    });
+  }
+});
+
+// Ruta para procesar la actualización de un profesor
+app.post("/admin/profesores/actualizar/:id", requireAuth, async (req, res) => {
+  const profesorId = req.params.id;
+  const { nombre, email, tarjeta_id, materias } = req.body;
+
+  // Validación básica
+  if (!nombre || !tarjeta_id) {
+    return res.status(400).render("profesor_editar", {
+      profesor: { profesor_id: profesorId, nombre, email, tarjeta_id },
+      materias: [],
+      materiasAsignadas: materias || [],
+      error: "El nombre y el ID de tarjeta son obligatorios",
+    });
+  }
+
+  try {
+    // Verificar si el tarjeta_id ya está en uso por otro profesor
+    const existingProf = await db.query(
+      "SELECT profesor_id FROM profesores WHERE tarjeta_id = $1 AND profesor_id != $2",
+      [tarjeta_id, profesorId]
+    );
+
+    if (existingProf.rows.length > 0) {
+      // Volver a cargar todos los datos necesarios para el formulario
+      const allMaterias = await db.queryAll(
+        "SELECT materia_id, nombre FROM materias ORDER BY nombre ASC"
+      );
+
+      return res.status(400).render("profesor_editar", {
+        profesor: { profesor_id: profesorId, nombre, email, tarjeta_id },
+        materias: allMaterias,
+        materiasAsignadas: materias || [],
+        error: "Ya existe otro profesor con ese ID de tarjeta",
+      });
+    }
+
+    // Actualizar los datos del profesor
+    await db.query(
+      "UPDATE profesores SET nombre = $1, email = $2, tarjeta_id = $3 WHERE profesor_id = $4",
+      [nombre, email, tarjeta_id, profesorId]
+    );
+
+    // Gestionar la asignación de materias si se proporcionan
+    if (materias && Array.isArray(materias)) {
+      // Eliminar todas las asignaciones actuales
+      await db.query("DELETE FROM profesor_materia WHERE profesor_id = $1", [
+        profesorId,
+      ]);
+
+      // Insertar las nuevas asignaciones
+      for (const materiaId of materias) {
+        await db.query(
+          "INSERT INTO profesor_materia (profesor_id, materia_id) VALUES ($1, $2)",
+          [profesorId, materiaId]
+        );
+      }
+    }
+
+    // Redirigir al panel de administración
+    req.session.message = "Profesor actualizado correctamente";
+    res.redirect("/db_admin");
+  } catch (err) {
+    console.error("Error al actualizar profesor:", err);
+    res.status(500).render("error", {
+      message: "Error al actualizar el profesor en la base de datos",
+      error: { status: 500, stack: err.stack },
+    });
+  }
+});
+
 // --- Rutas de Administración ---
 app.get("/admin_login", (req, res) => {
   // Si ya está logueado, quizás redirigir a /db_admin

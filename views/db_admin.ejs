@@ -243,6 +243,37 @@
         margin-bottom: 20px;
         width: 100%;
       }
+
+      .btn-editar {
+        background-color: #4caf50;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 0.9em;
+        margin-right: 5px;
+        display: inline-block;
+      }
+
+      .btn-editar:hover {
+        background-color: #45a049;
+      }
+
+      .btn-eliminar {
+        background-color: #f44336;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+      }
+
+      .btn-eliminar:hover {
+        background-color: #d32f2f;
+      }
     </style>
   </head>
   <body>
@@ -312,7 +343,6 @@
             (Funcionalidad de guardar/borrar requiere implementación adicional)
           </p>
         </div>
-
         <div class="table-container">
           <h2>Listado de Profesores</h2>
           <table id="tabla-profesores">
@@ -322,6 +352,8 @@
                 <th>Email</th>
                 <th>ID de Tarjeta</th>
                 <th>ID Profesor</th>
+                <th>Acciones</th>
+                <!-- Nueva columna para acciones -->
               </tr>
             </thead>
             <tbody id="tbody-profesores">
@@ -332,10 +364,26 @@
                 <td><%= profesor.email ? profesor.email : '-' %></td>
                 <td><%= profesor.tarjeta_id %></td>
                 <td><%= profesor.profesor_id %></td>
+                <td>
+                  <!-- Botón de edición -->
+                  <a
+                    href="/admin/profesores/editar/<%= profesor.profesor_id %>"
+                    class="btn-editar"
+                    >Editar</a
+                  >
+                  <!-- Puedes agregar también un botón de eliminar conectado a la API -->
+                  <button
+                    class="btn-eliminar"
+                    data-tarjeta="<%= profesor.tarjeta_id %>"
+                  >
+                    Eliminar
+                  </button>
+                </td>
               </tr>
               <% }); %> <% } else { %>
               <tr>
-                <td colspan="4">No hay profesores registrados.</td>
+                <td colspan="5">No hay profesores registrados.</td>
+                <!-- Actualizado de 4 a 5 columnas -->
               </tr>
               <% } %>
             </tbody>
