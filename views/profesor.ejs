@@ -1,36 +1,115 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= profesorName %></title>
+    <title>Detalles de: <%= profesor.nombre %></title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <h1><%= profesorName %></h1>
-    <h2>Ubicación actual: <%= profesorLocation %></h2>
-    <div>
-      <h2>Materias:</h2>
+    <header>
+      <div id="inicio"><a href="/">Inicio</a></div>
+    </header>
+
+    <h1><%= profesor.nombre %></h1>
+
+    <%# Sección de Información Básica y Última Ubicación %>
+    <div class="info-section">
+      <%# Usa clases para aplicar estilos desde styles.css %>
+      <h2>Información del Profesor</h2>
+      <p><strong>ID:</strong> <%= profesor.profesor_id %></p>
+      <p>
+        <strong>Email:</strong> <%= profesor.email ? profesor.email : 'No
+        disponible' %>
+      </p>
+      <p><strong>Tarjeta ID:</strong> <%= profesor.tarjeta_id %></p>
+
+      <% if (profesor.lastLocation) { %>
+      <p>
+        <strong>Última ubicación registrada:</strong>
+        Aula "<%= profesor.lastLocation.aula_nombre %>" (<%=
+        profesor.lastLocation.isentry ? '<span class="status-entry"
+          >Entrada</span
+        >' : '<span class="status-exit">Salida</span>' %> <%# Aplica clases para
+        estilizar %> el <%= new
+        Date(profesor.lastLocation.timestamp).toLocaleString('es-AR') %>)
+      </p>
+      <% } else { %>
+      <p>
+        <strong>Última ubicación registrada:</strong> No hay registros de aula.
+      </p>
+      <% } %>
+    </div>
+
+    <%# Sección de Materias %>
+    <div class="info-section">
+      <h2>Materias Dictadas</h2>
+      <% if (profesor.materias && profesor.materias.length > 0) { %>
       <ul>
         <% profesor.materias.forEach((materia) => { %>
-        <li>%= materia.nombre %></li>
+        <li>
+          <a href="/materia/<%= materia.materia_id %>">
+            <%= materia.nombre %>
+          </a>
+          (ID: <%= materia.materia_id %>)
+        </li>
         <% }); %>
       </ul>
+      <% } else { %>
+      <p><%= profesor.nombre %> no tiene materias asignadas en el sistema.</p>
+      <% } %>
     </div>
-    <div>
-      <h2>Contacta a tu profesor:</h2>
-      <p>
-        Para realizar una consulta breve, envía un mensaje a su aula. Tu
-        profesor lo verá y podrá esperarte.
-      </p>
-      <form action="/profesor/<%= profesorId %>" method="POST">
+
+    <%# Formulario de Contacto %>
+    <div class="contact-container">
+      <h2>Contactar a <%= profesor.nombre %></h2>
+      <%# RECUERDA: Cambia action y method según implementes el envío %>
+      <form action="/ruta_para_enviar_mensaje" method="POST">
         <input
-          type="text"
-          name="alumno"
-          placeholder="Nombre del alumno"
-          required
+          type="hidden"
+          name="profesorId"
+          value="<%= profesor.profesor_id %>"
         />
-        <input type="text" name="consulta" placeholder="Consulta" required />
-        <button type="submit">Enviar</button>
+
+        <div class="input-group">
+          <label for="alumno">Tu Nombre</label>
+          <input
+            type="text"
+            id="alumno"
+            name="alumno"
+            placeholder="Ingresa tu nombre completo"
+            required
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="subject">Tu Consulta</label>
+          <textarea
+            id="subject"
+            name="subject"
+            maxlength="200"
+            placeholder="Escribe tu consulta aquí..."
+            required
+          ></textarea>
+          <span id="char-count" class="char-count"
+            >Caracteres restantes: <span id="char-count-value">200</span></span
+          >
+        </div>
+
+        <button type="submit">Enviar Consulta</button>
       </form>
     </div>
+
+    <script>
+      // Script contador de caracteres
+      const textarea = document.getElementById("subject");
+      const charCountValue = document.getElementById("char-count-value");
+      const maxLength = textarea.getAttribute("maxlength");
+
+      charCountValue.textContent = maxLength; // Establece el valor inicial
+
+      textarea.addEventListener("input", function () {
+        const currentLength = this.value.length;
+        charCountValue.textContent = maxLength - currentLength;
+      });
+    </script>
   </body>
 </html>

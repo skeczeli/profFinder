@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gestión de Profesores y Materias</title>
+    <title>Gestión Académica</title>
+    <%# Manteniendo tus estilos ya que la estructura depende de ellos %>
     <style>
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -128,9 +129,10 @@
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
         padding: 32px;
         width: 100%;
-        max-width: 900px;
+        max-width: 900px; /* Ajustado para tablas más anchas */
         transition: all 0.3s ease;
         margin-top: 30px;
+        overflow-x: auto; /* Para tablas anchas en móviles */
       }
 
       table {
@@ -143,6 +145,7 @@
         padding: 12px 15px;
         text-align: left;
         border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap; /* Evita que el texto largo rompa líneas */
       }
 
       th {
@@ -168,6 +171,7 @@
         transition: background-color 0.2s;
         width: auto;
         margin-right: 10px;
+        margin-bottom: 10px; /* Espacio entre botones */
       }
 
       .collapsible:hover {
@@ -175,25 +179,30 @@
       }
 
       .tab-content {
-        display: none;
+        display: none; /* Oculto por defecto, JS lo muestra */
         width: 100%;
+        /* Estilos para centrar el contenido de la pestaña */
+        flex-direction: column;
+        align-items: center;
+        gap: 20px; /* Espacio entre form y tabla */
       }
 
       .tab-buttons {
         margin-bottom: 30px;
+        display: flex; /* Para alinear botones */
+        flex-wrap: wrap; /* Para que quepan en pantallas pequeñas */
+        justify-content: center; /* Centrar botones */
       }
 
       .active {
-        display: block;
+        display: flex; /* Cambiado a flex para usar align-items */
       }
 
       @media (max-width: 800px) {
-        .container {
-          flex-direction: column;
-          align-items: center;
-        }
-
         .form-container {
+          max-width: 100%;
+        }
+        .table-container {
           max-width: 100%;
         }
       }
@@ -220,8 +229,22 @@
 
       .logout-button {
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 20px; /* Ajustado para alinear con home */
+        right: 20px;
+      }
+      .logout-button button {
+        /* Estilo específico para el botón dentro del form */
+        padding: 12px 24px;
+        width: auto; /* No ocupa todo el ancho */
+        margin-top: 0;
+      }
+      .error-message {
+        /* Estilo para mensaje de error */
+        color: #e53e3e;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 20px;
+        width: 100%;
       }
     </style>
   </head>
@@ -236,9 +259,17 @@
 
     <h1>Gestión Académica</h1>
 
+    <%# Mostrar mensaje de error si vino del backend %> <% if (typeof error !==
+    'undefined' && error) { %>
+    <p class="error-message"><%= error %></p>
+    <% } %>
+
     <div class="tab-buttons">
       <button class="collapsible" onclick="openTab('profesores')">
         Profesores
+      </button>
+      <button class="collapsible" onclick="openTab('aulas')">
+        <%# <-- AÑADIDO BOTÓN AULAS %> Aulas
       </button>
       <button class="collapsible" onclick="openTab('materias')">
         Materias
@@ -249,11 +280,11 @@
     </div>
 
     <div class="container">
-      <!-- Formulario de Profesores -->
+      <!-- Pestaña de Profesores -->
       <div id="profesores" class="tab-content">
         <div class="form-container">
           <h2>Registrar Profesor</h2>
-
+          <%# Inputs del formulario (sin cambios funcionales aún) %>
           <div class="input-group">
             <label for="prof-nombre">Nombre completo:</label>
             <input
@@ -262,7 +293,6 @@
               placeholder="Nombre y apellido"
             />
           </div>
-
           <div class="input-group">
             <label for="prof-email">Email:</label>
             <input
@@ -271,18 +301,20 @@
               placeholder="correo@ejemplo.com"
             />
           </div>
-
           <div class="input-group">
-            <label for="prof-id">ID de tarjeta:</label>
-            <input type="text" id="prof-id" placeholder="Identificación" />
+            <label for="prof-tarjeta">ID de tarjeta:</label> <%# Cambiado ID a
+            prof-tarjeta %>
+            <input type="text" id="prof-tarjeta" placeholder="Identificación" />
           </div>
-
           <div style="display: flex; gap: 10px">
             <button id="guardar-profesor">Guardar Profesor</button>
             <button id="borrar-profesor" class="btn-eliminar">
               Eliminar Profesor
             </button>
           </div>
+          <p style="font-size: 0.8em; margin-top: 15px; color: #666">
+            (Funcionalidad de guardar/borrar requiere implementación adicional)
+          </p>
         </div>
 
         <div class="table-container">
@@ -293,35 +325,109 @@
                 <th>Nombre</th>
                 <th>Email</th>
                 <th>ID de Tarjeta</th>
+                <th>ID Profesor</th>
+                <%# Añadido ID para referencia %>
               </tr>
             </thead>
-            <tbody>
-              <!-- Los datos se cargarán dinámicamente -->
+            <tbody id="tbody-profesores">
+              <%# Poblado con EJS %> <% if (profesores && profesores.length > 0)
+              { %> <% profesores.forEach(profesor => { %>
+              <tr>
+                <td><%= profesor.nombre %></td>
+                <td><%= profesor.email ? profesor.email : '-' %></td>
+                <td><%= profesor.tarjeta_id %></td>
+                <td><%= profesor.profesor_id %></td>
+              </tr>
+              <% }); %> <% } else { %>
+              <tr>
+                <td colspan="4">No hay profesores registrados.</td>
+              </tr>
+              <% } %>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Formulario de Materias -->
+      <!-- Pestaña de Aulas (NUEVA) -->
+      <div id="aulas" class="tab-content">
+        <%# Podrías añadir un form para aulas aquí si lo necesitas %>
+        <div class="form-container">
+          <h2>Registrar Aula</h2>
+          <div class="input-group">
+            <label for="aula-nombre">Nombre del Aula:</label>
+            <input
+              type="text"
+              id="aula-nombre"
+              placeholder="Ej: Laboratorio 1"
+            />
+          </div>
+          <div class="input-group">
+            <label for="aula-esp32">ID ESP32 (Opcional):</label>
+            <input
+              type="text"
+              id="aula-esp32"
+              placeholder="ID del dispositivo asociado"
+            />
+          </div>
+          <div style="display: flex; gap: 10px">
+            <button id="guardar-aula">Guardar Aula</button>
+            <button id="borrar-aula" class="btn-eliminar">Eliminar Aula</button>
+          </div>
+          <p style="font-size: 0.8em; margin-top: 15px; color: #666">
+            (Funcionalidad requiere implementación adicional)
+          </p>
+        </div>
+
+        <div class="table-container">
+          <h2>Listado de Aulas</h2>
+          <table id="tabla-aulas">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>ESP32 ID</th>
+                <th>ID Aula</th>
+                <%# Añadido ID para referencia %>
+              </tr>
+            </thead>
+            <tbody id="tbody-aulas">
+              <%# Poblado con EJS %> <% if (aulas && aulas.length > 0) { %> <%
+              aulas.forEach(aula => { %>
+              <tr>
+                <td><%= aula.nombre %></td>
+                <td><%= aula.esp32_id ? aula.esp32_id : '-' %></td>
+                <td><%= aula.aula_id %></td>
+              </tr>
+              <% }); %> <% } else { %>
+              <tr>
+                <td colspan="3">No hay aulas registradas.</td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pestaña de Materias -->
       <div id="materias" class="tab-content">
         <div class="form-container">
           <h2>Registrar Materia</h2>
-
           <div class="input-group">
             <label for="materia-nombre">Nombre de la materia:</label>
             <input
               type="text"
               id="materia-nombre"
-              placeholder="Ej: Matemáticas"
+              placeholder="Ej: Cálculo I"
             />
           </div>
-
           <div style="display: flex; gap: 10px">
             <button id="guardar-materia">Guardar Materia</button>
             <button id="borrar-materia" class="btn-eliminar">
               Eliminar Materia
             </button>
           </div>
+          <p style="font-size: 0.8em; margin-top: 15px; color: #666">
+            (Funcionalidad requiere implementación adicional)
+          </p>
         </div>
 
         <div class="table-container">
@@ -329,44 +435,65 @@
           <table id="tabla-materias">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Nombre</th>
+                <th>ID Materia</th>
+                <%# Añadido ID %>
               </tr>
             </thead>
-            <tbody>
-              <!-- Los datos se cargarán dinámicamente -->
+            <tbody id="tbody-materias">
+              <%# Poblado con EJS %> <% if (materias && materias.length > 0) {
+              %> <% materias.forEach(materia => { %>
+              <tr>
+                <td><%= materia.nombre %></td>
+                <td><%= materia.materia_id %></td>
+              </tr>
+              <% }); %> <% } else { %>
+              <tr>
+                <td colspan="2">No hay materias registradas.</td>
+              </tr>
+              <% } %>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Formulario de Asignaciones -->
+      <!-- Pestaña de Asignaciones -->
       <div id="asignaciones" class="tab-content">
         <div class="form-container">
-          <h2>Asignar Materias</h2>
-
+          <h2>Asignar Materias a Profesores</h2>
           <div class="input-group">
             <label for="asign-profesor">Profesor:</label>
             <select id="asign-profesor">
               <option value="">Seleccione un profesor</option>
-              <!-- Opciones se cargarán dinámicamente -->
+              <%# Poblar dropdown con EJS %> <% if (profesores &&
+              profesores.length > 0) { %> <% profesores.forEach(profesor => { %>
+              <option value="<%= profesor.profesor_id %>">
+                <%= profesor.nombre %> (ID: <%= profesor.profesor_id %>)
+              </option>
+              <% }); %> <% } %>
             </select>
           </div>
-
           <div class="input-group">
             <label for="asign-materia">Materia:</label>
             <select id="asign-materia">
               <option value="">Seleccione una materia</option>
-              <!-- Opciones se cargarán dinámicamente -->
+              <%# Poblar dropdown con EJS %> <% if (materias && materias.length
+              > 0) { %> <% materias.forEach(materia => { %>
+              <option value="<%= materia.materia_id %>">
+                <%= materia.nombre %> (ID: <%= materia.materia_id %>)
+              </option>
+              <% }); %> <% } %>
             </select>
           </div>
-
           <div style="display: flex; gap: 10px">
             <button id="guardar-asignacion">Guardar Asignación</button>
             <button id="borrar-asignacion" class="btn-eliminar">
               Eliminar Asignación
             </button>
           </div>
+          <p style="font-size: 0.8em; margin-top: 15px; color: #666">
+            (Funcionalidad requiere implementación adicional)
+          </p>
         </div>
 
         <div class="table-container">
@@ -374,12 +501,33 @@
           <table id="tabla-asignaciones">
             <thead>
               <tr>
-                <th>Profesor</th>
-                <th>Materia</th>
+                <th>Profesor (ID)</th>
+                <th>Materia (ID)</th>
+                <%# Podrías añadir más columnas si la consulta las devuelve %>
               </tr>
             </thead>
-            <tbody>
-              <!-- Los datos se cargarán dinámicamente -->
+            <tbody id="tbody-asignaciones">
+              <%# Esta tabla necesita datos de la relación profesor_materia %>
+              <%# La ruta actual /db_admin NO carga estos datos %>
+              <tr>
+                <td colspan="2">
+                  Datos no cargados. Se requiere actualizar backend y/o usar
+                  JS/AJAX.
+                </td>
+              </tr>
+              <%# Ejemplo si tuvieras un array 'asignacionesData' con
+              {prof_nombre, mat_nombre}: %> <%# if (typeof asignacionesData !==
+              'undefined' && asignacionesData.length > 0) { %> <%#
+              asignacionesData.forEach(asig => { %> <%#
+              <tr>
+                <td><%= asig.prof_nombre %></td>
+                <td><%= asig.mat_nombre %></td>
+              </tr>
+              %> <%# }); %> <%# } else { %> <%#
+              <tr>
+                <td colspan="2">No hay asignaciones registradas.</td>
+              </tr>
+              %> <%# } %>
             </tbody>
           </table>
         </div>
@@ -387,24 +535,57 @@
     </div>
 
     <script>
-      // Gestión de pestañas
+      // Gestión de pestañas (sin cambios)
       function openTab(tabName) {
-        // Ocultar todos los contenidos de pestaña
         const tabContents = document.getElementsByClassName("tab-content");
         for (let i = 0; i < tabContents.length; i++) {
           tabContents[i].style.display = "none";
+          tabContents[i].classList.remove("active"); // Asegura quitar clase active
         }
-
-        // Mostrar el contenido de la pestaña seleccionada
-        document.getElementById(tabName).style.display = "flex";
-        document.getElementById(tabName).style.flexDirection = "column";
-        document.getElementById(tabName).style.alignItems = "center";
+        const activeTab = document.getElementById(tabName);
+        if (activeTab) {
+          activeTab.style.display = "flex"; // Cambiado a flex
+          activeTab.classList.add("active");
+        }
       }
 
-      // Inicializar: mostrar la primera pestaña
+      // Inicializar: mostrar la primera pestaña (Profesores) por defecto
       document.addEventListener("DOMContentLoaded", function () {
         openTab("profesores");
       });
+
+      // Aquí iría el CÓDIGO JAVASCRIPT ADICIONAL para:
+      // 1. Capturar clics en los botones "Guardar...", "Eliminar...".
+      // 2. Leer datos de los formularios.
+      // 3. Realizar peticiones fetch (POST, DELETE) a rutas API del backend (que necesitarías crear).
+      // 4. Actualizar las tablas/UI después de una operación exitosa.
+      // Ejemplo MUY básico (no funcional sin backend):
+      /*
+        document.getElementById('guardar-profesor')?.addEventListener('click', async () => {
+            const nombre = document.getElementById('prof-nombre').value;
+            const email = document.getElementById('prof-email').value;
+            const tarjeta = document.getElementById('prof-tarjeta').value;
+            console.log('Intentando guardar profesor:', { nombre, email, tarjeta });
+            alert('Funcionalidad de guardar NO implementada');
+            // try {
+            //     const response = await fetch('/api/profesores', { // Necesitas crear esta ruta API
+            //         method: 'POST',
+            //         headers: { 'Content-Type': 'application/json' },
+            //         body: JSON.stringify({ nombre, email, tarjeta_id: tarjeta })
+            //     });
+            //     if (response.ok) {
+            //         alert('Profesor guardado!');
+            //         // Recargar datos o actualizar tabla dinámicamente
+            //     } else {
+            //         const errorData = await response.json();
+            //         alert('Error al guardar: ' + (errorData.message || response.statusText));
+            //     }
+            // } catch (error) {
+            //     console.error('Error en fetch:', error);
+            //     alert('Error de conexión al intentar guardar.');
+            // }
+        });
+        */
     </script>
   </body>
 </html>

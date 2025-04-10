@@ -1,41 +1,59 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8" />
-    <title>Resultado de la Búsqueda</title>
+    <title>Resultados de Búsqueda: <%= searchTerm %></title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <header>
       <div id="inicio"><a href="/">Inicio</a></div>
     </header>
-    <h1>Resultados de "<%= searchTerm %>"</h1>
 
-    <% if (movies.length === 0 && actors.length === 0) { %>
-    <p>No hay resultados.</p>
-    <% } else { %>
+    <h1>Resultados de Búsqueda para: "<%= searchTerm %>"</h1>
 
-    <h2>Actores</h2>
-    <% if (actors.length > 0) { %>
-    <ul>
-      <% actors.forEach((actor) => { %>
-      <li>
-        <a href="/actor/<%= actor.person_id %>"><%= actor.person_name %></a>
-      </li>
-      <% }); %>
-    </ul>
-    <% } else { %>
-    <p>No hay resultados.</p>
-    <% } %>
-    <h2>Películas</h2>
-    <% if (movies.length > 0) { %>
-    <ul>
-      <% movies.forEach((movie) => { %>
-      <li><a href="/pelicula/<%= movie.movie_id %>"><%= movie.title %></a></li>
-      <% }); %>
-    </ul>
-    <% } else { %>
-    <p>No hay resultados.</p>
-    <% } %> <% } %>
+    <% if (error) { %>
+    <p class="error-message"><%= error %></p>
+    <%# Muestra mensaje de error si existe %> <% } %> <%# Sección de Profesores
+    %>
+    <div class="results-section">
+      <h2>Profesores Encontrados</h2>
+      <% if (profesores && profesores.length > 0) { %>
+      <ul>
+        <% profesores.forEach(profesor => { %>
+        <li>
+          <a href="/profesor/<%= profesor.profesor_id %>">
+            <%= profesor.nombre %>
+          </a>
+          <% if (profesor.email) { %> (<%= profesor.email %>) <% } %>
+        </li>
+        <% }); %>
+      </ul>
+      <% } else if (!error) { %> <%# Solo muestra "no encontrado" si no hubo un
+      error general %>
+      <p>No se encontraron profesores con ese nombre.</p>
+      <% } %>
+    </div>
+
+    <%# Sección de Materias %>
+    <div class="results-section">
+      <h2>Materias Encontradas</h2>
+      <% if (materias && materias.length > 0) { %>
+      <ul>
+        <% materias.forEach(materia => { %>
+        <li>
+          <a href="/materia/<%= materia.materia_id %>">
+            <%# Asume ruta /materia/:id %> <%= materia.nombre %>
+          </a>
+          (ID: <%= materia.materia_id %>)
+        </li>
+        <% }); %>
+      </ul>
+      <% } else if (!error) { %> <%# Solo muestra "no encontrado" si no hubo un
+      error general %>
+      <p>No se encontraron materias con ese nombre.</p>
+      <% } %>
+    </div>
+
+    <p><a href="/">Volver a la búsqueda</a></p>
   </body>
 </html>
