@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Error</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <%# O tu CSS %>
+    <style>
+      /* Estilos básicos si no tienes styles.css */
+      body {
+        font-family: sans-serif;
+        padding: 20px;
+        background-color: #fef2f2;
+        color: #991b1b;
+      }
+      h1 {
+        color: #dc2626;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Error Inesperado</h1>
+    <p>Lo sentimos, algo salió mal en el servidor.</p>
+    <% if (typeof message !== 'undefined' && message) { %>
+    <p><strong>Mensaje:</strong> <%= message %></p>
+    <% } %>
+  </body>
+</html>

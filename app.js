@@ -312,12 +312,16 @@ app.use((req, res, next) => {
   res.status(404).render("404"); // Asume que tienes una plantilla '404.ejs'
 });
 
-// --- Middleware para Manejo de Errores Generales (al final) ---
+// --- Middleware para Manejo de Errores Generales (AL FINAL DE TODO) ---
 app.use((err, req, res, next) => {
-  console.error("Error no manejado:", err.stack);
-  res
-    .status(500)
-    .render("error", { message: "Ha ocurrido un error inesperado." }); // Asume 'error.ejs'
+  console.error("Error no manejado:", err.stack); // Loguea el error completo
+  // Establece locals, solo proporciona error en desarrollo
+  res.locals.message = err.message;
+  res.locals.error = process.env.NODE_ENV === "development" ? err : {}; // No filtrar error en dev
+
+  // Renderiza la página de error
+  res.status(err.status || 500);
+  res.render("error"); // Renderiza views/error.ejs
 });
 
 // --- Iniciar el servidor ---
