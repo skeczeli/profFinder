@@ -1,9 +1,9 @@
 const express = require("express");
 //const sqlite3 = require("sqlite3");
 const ejs = require("ejs");
+require('dotenv').config();
 const db = require("./db");
 
-require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -43,7 +43,7 @@ const db = new sqlite3.Database("movies.db", (err) => {
   });
 });*/
 
-const { Pool } = require("pg");
+/*const { Pool } = require("pg");
 
 // Crear una pool de conexiones a PostgreSQL
 const pool = new Pool({
@@ -81,7 +81,7 @@ const queryAll = (text, params) => {
     });
   });
 };
-
+*/
 // Configurar el motor de plantillas EJS
 app.set("view engine", "ejs");
 
