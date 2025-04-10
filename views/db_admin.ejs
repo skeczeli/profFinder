@@ -515,17 +515,19 @@
               </tr>
               <%# Ejemplo si tuvieras un array 'asignacionesData' con
               {prof_nombre, mat_nombre}: %> <%# if (typeof asignacionesData !==
-              'undefined' && asignacionesData.length > 0) { %> <%#
-              asignacionesData.forEach(asig => { %> <%#
+              'undefined' && asignacionesData.length > 0) { %> <%# Cierre
+              añadido %> <%# asignacionesData.forEach(asig => { %> <%# Cierre
+              añadido %> <%#
               <tr>
                 <td><%= asig.prof_nombre %></td>
                 <td><%= asig.mat_nombre %></td>
               </tr>
-              %> <%# }); %> <%# } else { %> <%#
+              %> <%# Cierre añadido %> <%# }); %> <%# Cierre añadido %> <%# }
+              else { %> <%# Cierre añadido %> <%#
               <tr>
                 <td colspan="2">No hay asignaciones registradas.</td>
               </tr>
-              %> <%# } %>
+              %> <%# Cierre añadido %> <%# } %> <%# Cierre añadido %>
             </tbody>
           </table>
         </div>
