@@ -22,6 +22,15 @@ app.use(
 // Configurar el motor de plantillas EJS
 app.set("view engine", "ejs");
 
+// Middleware de autenticación
+const requireAuth = (req, res, next) => {
+  if (req.session && req.session.isAdmin) {
+    return next(); // Usuario autenticado, continuar
+  } else {
+    return res.redirect("/admin_login"); // No autenticado, redirigir a login
+  }
+};
+
 // --- Rutas Públicas ---
 
 // Ruta para la página de inicio (simple)
@@ -309,14 +318,6 @@ app.get("/admin_login", (req, res) => {
   }
   res.render("admin_login", { error: null }); // Pasar error como null inicialmente
 });
-
-const requireAuth = (req, res, next) => {
-  if (req.session && req.session.isAdmin) {
-    return next(); // Usuario autenticado, continuar
-  } else {
-    return res.redirect("/admin_login"); // No autenticado, redirigir a login
-  }
-};
 
 app.post("/admin_login", (req, res) => {
   const { username, password } = req.body;
