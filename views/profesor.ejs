@@ -21,12 +21,13 @@
       <% if (profesor.lastLocation) { %>
       <p>
         <strong>Última ubicación registrada:</strong>
-        Aula "<%= profesor.lastLocation.aula_nombre %>" <% if
-        (profesor.lastLocation.isentry) { %>
-        <span class="status-entry">Entrada</span>
+        <% if (profesor.lastLocation.isentry) { %>
+        <span class="status-entry"
+          >Aula "<%= profesor.lastLocation.aula_nombre %>"</span
+        >
         <% } else { %>
-        <span class="status-exit">Salida</span>
-        <% } %> el <%= new Date(profesor.lastLocation.timestamp)
+        <span class="status-exit">Profesor no disponible</span>
+        <% } %> desde <%= new Date(profesor.lastLocation.timestamp)
         .toLocaleString('es-AR') %>
       </p>
       <% } else { %>
