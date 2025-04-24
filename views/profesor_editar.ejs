@@ -202,12 +202,8 @@
                     name="materias[]"
                     value="<%= materia.materia_id %>"
                     id="materia<%= materia.materia_id %>"
-                    <%
-                    if
-                    (materiasAsignadas.includes(materia.materia_id))
-                    {
-                    %
-                  />checked<% } %>>
+                    <% if (materiasAsignadas.includes(materia.materia_id)) { %>checked<% } %>
+                    >
                   <label
                     class="form-check-label"
                     for="materia<%= materia.materia_id %>"

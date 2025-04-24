@@ -15,12 +15,6 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Por favor ingrese el nombre del profesor");
         return;
       }
-
-      if (!tarjetaInput.value.trim()) {
-        alert("Por favor ingrese el ID de tarjeta");
-        return;
-      }
-
       // Preparar datos para enviar
       const profesorData = {
         nombre: nombreInput.value.trim(),
@@ -123,10 +117,6 @@ document.addEventListener("DOMContentLoaded", function () {
       
       if (!tarjetaId) {
         alert("Error: No se pudo obtener el ID de tarjeta");
-        return;
-      }
-      
-      if (!confirm(`¿Está seguro que desea eliminar el profesor con tarjeta ID: ${tarjetaId}?`)) {
         return;
       }
       
