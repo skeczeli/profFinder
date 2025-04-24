@@ -278,7 +278,6 @@
   </head>
   <body>
     <a href="/" class="home-button">Home</a>
-
     <form action="/admin/logout" method="POST" class="logout-button">
       <button type="submit" style="background-color: #e53e3e">
         Cerrar sesión
@@ -426,20 +425,22 @@
                 <th>Nombre</th>
                 <th>ESP32 ID</th>
                 <th>ID Aula</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody id="tbody-aulas">
-              <% if (aulas && aulas.length > 0) { %> <% aulas.forEach(aula => {
-              %>
-              <tr>
-                <td><%= aula.nombre %></td>
-                <td><%= aula.esp32_id ? aula.esp32_id : '-' %></td>
-                <td><%= aula.aula_id %></td>
-              </tr>
-              <% }); %> <% } else { %>
-              <tr>
-                <td colspan="3">No hay aulas registradas.</td>
-              </tr>
+              <% if (aulas && aulas.length > 0) { %>
+                <% aulas.forEach(aula => { %>
+                  <tr>
+                    <td><%= aula.nombre %></td>
+                    <td><%= aula.esp32_id ? aula.esp32_id : '-' %></td>
+                    <td><%= aula.aula_id %></td>
+                    <td>
+                      <a href="/admin/aulas/editar/<%= aula.aula_id %>" class="btn-editar">Editar</a>
+                      <button class="btn-eliminar" data-id="<%= aula.aula_id %>">Eliminar</button>
+                    </td>
+                  </tr>
+                <% }); %>
               <% } %>
             </tbody>
           </table>
@@ -476,19 +477,21 @@
               <tr>
                 <th>Nombre</th>
                 <th>ID Materia</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody id="tbody-materias">
-              <% if (materias && materias.length > 0) { %> <%
-              materias.forEach(materia => { %>
-              <tr>
-                <td><%= materia.nombre %></td>
-                <td><%= materia.materia_id %></td>
-              </tr>
-              <% }); %> <% } else { %>
-              <tr>
-                <td colspan="2">No hay materias registradas.</td>
-              </tr>
+              <% if (materias && materias.length > 0) { %>
+                <% materias.forEach(materia => { %>
+                  <tr>
+                    <td><%= materia.nombre %></td>
+                    <td><%= materia.materia_id %></td>
+                    <td>
+                      <a href="/admin/materias/editar/<%= materia.materia_id %>" class="btn-editar">Editar</a>
+                      <button class="btn-eliminar" data-id="<%= materia.materia_id %>">Eliminar</button>
+                    </td>
+                  </tr>
+                <% }); %>
               <% } %>
             </tbody>
           </table>

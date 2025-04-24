@@ -434,6 +434,371 @@ app.post("/admin/profesores/actualizar/:id", requireAuth, async (req, res) => {
   }
 });
 
+// --- Rutas de Administración de Aulas ---
+// Ruta para crear un aula (POST)
+app.post(
+  "/admin/aulas/crear",
+  requireAuth,
+  express.json(),
+  async (req, res) => {
+    const { nombre, esp32_id } = req.body;
+
+    // Validación básica
+    if (!nombre || !esp32_id) {
+      return res.status(400).json({
+        success: false,
+        message: "El nombre y el ID del ESP32 son obligatorios",
+      });
+    }
+
+    try {
+      // Verificar si ya existe un aula con ese ESP32 ID
+      const existingAula = await db.query(
+        "SELECT aula_id FROM aulas WHERE esp32_id = $1",
+        [esp32_id]
+      );
+
+      if (existingAula.rows.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Ya existe un aula con ese ID de ESP32",
+        });
+      }
+
+      // Insertar la nueva aula
+      const result = await db.query(
+        "INSERT INTO aulas (nombre, esp32_id) VALUES ($1, $2) RETURNING aula_id",
+        [nombre, esp32_id]
+      );
+
+      res.status(201).json({
+        success: true,
+        message: "Aula creada correctamente",
+        aula_id: result.rows[0].aula_id,
+      });
+    } catch (err) {
+      console.error("Error al crear aula:", err);
+      res.status(500).json({
+        success: false,
+        message: "Error al crear el aula en la base de datos",
+        error: err.message,
+      });
+    }
+  }
+);
+
+// Ruta para eliminar un aula (DELETE)
+app.delete(
+  "/admin/aulas/eliminar/:esp32Id",
+  requireAuth,
+  async (req, res) => {
+    const { esp32Id } = req.params;
+
+    try {
+      // Verificar si existe el aula
+      const aula = await db.query(
+        "SELECT aula_id FROM aulas WHERE esp32_id = $1",
+        [esp32Id]
+      );
+
+      if (aula.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Aula no encontrada",
+        });
+      }
+
+      // Eliminar el aula
+      await db.query("DELETE FROM aulas WHERE esp32_id = $1", [esp32Id]);
+
+      res.json({
+        success: true,
+        message: "Aula eliminada correctamente",
+      });
+    } catch (err) {
+      console.error("Error al eliminar aula:", err);
+      res.status(500).json({
+        success: false,
+        message: "Error al eliminar el aula de la base de datos",
+        error: err.message,
+      });
+    }
+  }
+);
+
+// Ruta para mostrar el formulario de edición de aula
+app.get("/admin/aulas/editar/:id", requireAuth, async (req, res) => {
+  const aulaId = req.params.id;
+
+  try {
+    // Obtener datos del aula
+    const result = await db.query(
+      "SELECT aula_id, nombre, esp32_id FROM aulas WHERE aula_id = $1",
+      [aulaId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).render("error", {
+        message: "Aula no encontrada",
+        error: { status: 404 },
+      });
+    }
+
+    const aula = result.rows[0];
+
+    res.render("aulas_editar", {
+      aula: aula,
+      error: null,
+    });
+  } catch (err) {
+    console.error("Error al cargar datos del aula para editar:", err);
+    res.status(500).render("error", {
+      message: "Error al cargar datos del aula",
+      error: { status: 500, stack: err.stack },
+    });
+  }
+});
+
+// Ruta para procesar la actualización de un aula
+app.post("/admin/aulas/actualizar/:id", requireAuth, async (req, res) => {
+  const aulaId = req.params.id;
+  const { nombre, esp32_id } = req.body;
+
+  // Validación básica
+  if (!nombre || !esp32_id) {
+    return res.status(400).render("aulas_editar", {
+      aula: { aula_id: aulaId, nombre, esp32_id },
+      error: "El nombre y el ID del ESP32 son obligatorios",
+    });
+  }
+
+  try {
+    // Verificar si el esp32_id ya está en uso por otra aula
+    const existingAula = await db.query(
+      "SELECT aula_id FROM aulas WHERE esp32_id = $1 AND aula_id != $2",
+      [esp32_id, aulaId]
+    );
+
+    if (existingAula.rows.length > 0) {
+      return res.status(400).render("aulas_editar", {
+        aula: { aula_id: aulaId, nombre, esp32_id },
+        error: "Ya existe otra aula con ese ID de ESP32",
+      });
+    }
+
+    // Actualizar los datos del aula
+    await db.query(
+      "UPDATE aulas SET nombre = $1, esp32_id = $2 WHERE aula_id = $3",
+      [nombre, esp32_id, aulaId]
+    );
+
+    // Redirigir al panel de administración
+    req.session.message = "Aula actualizada correctamente";
+    res.redirect("/db_admin");
+  } catch (err) {
+    console.error("Error al actualizar aula:", err);
+    res.status(500).render("error", {
+      message: "Error al actualizar el aula en la base de datos",
+      error: { status: 500, stack: err.stack },
+    });
+  }
+});
+
+// --- Rutas de Administración de Materias ---
+// Ruta para crear una materia (POST)
+app.post(
+  "/admin/materias/crear",
+  requireAuth,
+  express.json(),
+  async (req, res) => {
+    const { nombre } = req.body;
+
+    // Validación básica
+    if (!nombre) {
+      return res.status(400).json({
+        success: false,
+        message: "El nombre de la materia es obligatorio",
+      });
+    }
+
+    try {
+      // Verificar si ya existe una materia con ese nombre
+      const existingMateria = await db.query(
+        "SELECT materia_id FROM materias WHERE nombre = $1",
+        [nombre]
+      );
+
+      if (existingMateria.rows.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Ya existe una materia con ese nombre",
+        });
+      }
+
+      // Insertar la nueva materia
+      const result = await db.query(
+        "INSERT INTO materias (nombre) VALUES ($1) RETURNING materia_id",
+        [nombre]
+      );
+
+      res.status(201).json({
+        success: true,
+        message: "Materia creada correctamente",
+        materia_id: result.rows[0].materia_id,
+      });
+    } catch (err) {
+      console.error("Error al crear materia:", err);
+      res.status(500).json({
+        success: false,
+        message: "Error al crear la materia en la base de datos",
+        error: err.message,
+      });
+    }
+  }
+);
+
+// Ruta para eliminar una materia (DELETE)
+app.delete(
+  "/admin/materias/eliminar/:id",
+  requireAuth,
+  async (req, res) => {
+    const materiaId = req.params.id;
+
+    try {
+      // Verificar si existe la materia
+      const materia = await db.query(
+        "SELECT materia_id FROM materias WHERE materia_id = $1",
+        [materiaId]
+      );
+
+      if (materia.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Materia no encontrada",
+        });
+      }
+
+      // Eliminar la materia
+      await db.query("DELETE FROM materias WHERE materia_id = $1", [materiaId]);
+
+      res.json({
+        success: true,
+        message: "Materia eliminada correctamente",
+      });
+    } catch (err) {
+      console.error("Error al eliminar materia:", err);
+      res.status(500).json({
+        success: false,
+        message: "Error al eliminar la materia de la base de datos",
+        error: err.message,
+      });
+    }
+  }
+);
+
+// Ruta para mostrar el formulario de edición de materia
+app.get("/admin/materias/editar/:id", requireAuth, async (req, res) => {
+  const materiaId = req.params.id;
+
+  try {
+    // Obtener datos de la materia
+    const result = await db.query(
+      "SELECT materia_id, nombre FROM materias WHERE materia_id = $1",
+      [materiaId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).render("error", {
+        message: "Materia no encontrada",
+        error: { status: 404 },
+      });
+    }
+
+    const materia = result.rows[0];
+
+    // Obtener los profesores que imparten esta materia
+    const profesores = await db.queryAll(
+      `SELECT p.profesor_id, p.nombre 
+       FROM profesores p
+       JOIN profesor_materia pm ON p.profesor_id = pm.profesor_id
+       WHERE pm.materia_id = $1
+       ORDER BY p.nombre ASC`,
+      [materiaId]
+    );
+
+    res.render("materias_editar", {
+      materia: materia,
+      profesores: profesores,
+      error: null,
+    });
+  } catch (err) {
+    console.error("Error al cargar datos de la materia para editar:", err);
+    res.status(500).render("error", {
+      message: "Error al cargar datos de la materia",
+      error: { status: 500, stack: err.stack },
+    });
+  }
+});
+
+// Ruta para procesar la actualización de una materia
+app.post("/admin/materias/actualizar/:id", requireAuth, async (req, res) => {
+  const materiaId = req.params.id;
+  const { nombre } = req.body;
+
+  // Validación básica
+  if (!nombre) {
+    return res.status(400).render("materias_editar", {
+      materia: { materia_id: materiaId, nombre },
+      profesores: [],
+      error: "El nombre de la materia es obligatorio",
+    });
+  }
+
+  try {
+    // Verificar si el nombre ya está en uso por otra materia
+    const existingMateria = await db.query(
+      "SELECT materia_id FROM materias WHERE nombre = $1 AND materia_id != $2",
+      [nombre, materiaId]
+    );
+
+    if (existingMateria.rows.length > 0) {
+      // Volver a cargar los profesores para renderizar la página de edición
+      const profesores = await db.queryAll(
+        `SELECT p.profesor_id, p.nombre 
+         FROM profesores p
+         JOIN profesor_materia pm ON p.profesor_id = pm.profesor_id
+         WHERE pm.materia_id = $1
+         ORDER BY p.nombre ASC`,
+        [materiaId]
+      );
+
+      return res.status(400).render("materias_editar", {
+        materia: { materia_id: materiaId, nombre },
+        profesores: profesores,
+        error: "Ya existe otra materia con ese nombre",
+      });
+    }
+
+    // Actualizar los datos de la materia
+    await db.query(
+      "UPDATE materias SET nombre = $1 WHERE materia_id = $2",
+      [nombre, materiaId]
+    );
+
+    // Redirigir al panel de administración
+    req.session.message = "Materia actualizada correctamente";
+    res.redirect("/db_admin");
+  } catch (err) {
+    console.error("Error al actualizar materia:", err);
+    res.status(500).render("error", {
+      message: "Error al actualizar la materia en la base de datos",
+      error: { status: 500, stack: err.stack },
+    });
+  }
+});
+
+
+
 // --- Rutas de Administración ---
 app.get("/admin_login", (req, res) => {
   // Si ya está logueado, quizás redirigir a /db_admin
