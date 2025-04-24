@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
       const nombre = nombreAulaInput.value.trim();
       const esp32Id = esp32Input.value.trim();
       
-      if (!nombre) {
-        alert('Por favor, ingrese el nombre del aula');
+      if (!nombre || !esp32Id) {
+        alert('Por favor, ingrese el nombre del aula y el ID del ESP32');
         return;
       }
       
@@ -25,20 +25,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Delegación de eventos para los botones de eliminar en la tabla
     tbodyAulas.addEventListener('click', function(e) {
       if (e.target.classList.contains('btn-eliminar')) {
-        const aulaId = e.target.getAttribute('data-id');
+        const esp32Id = e.target.getAttribute('data-id');
         if (confirm('¿Está seguro que desea eliminar esta aula?')) {
-          eliminarAula(aulaId);
+          eliminarAula(esp32Id);
         }
       }
     });
     
     // También conectar el botón general de eliminar (si se usa)
-    borrarAulaBtn.addEventListener('click', function() {
-      const aulaId = prompt('Ingrese el ID del aula que desea eliminar:');
-      if (aulaId) {
-        eliminarAula(aulaId);
-      }
-    });
+    if (borrarAulaBtn) {
+      borrarAulaBtn.addEventListener('click', function() {
+        const esp32Id = prompt('Ingrese el ID del ESP32 del aula que desea eliminar:');
+        if (esp32Id) {
+          eliminarAula(esp32Id);
+        }
+      });
+    }
     
     // Función para guardar un aula nueva
     function guardarAula(nombre, esp32Id) {
@@ -49,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
       };
       
       // Enviar petición al servidor
-      fetch('/admin/aulas', {
+      fetch('/admin/aulas/crear', {  // Modificado para usar la ruta correcta
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .then(response => {
         if (!response.ok) {
-          throw new Error('Error al guardar el aula');
+          return response.json().then(err => { throw new Error(err.message || 'Error al guardar el aula'); });
         }
         return response.json();
       })
@@ -77,13 +79,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   
     // Función para eliminar un aula
-    function eliminarAula(aulaId) {
-      fetch(`/admin/aulas/${aulaId}`, {
+    function eliminarAula(esp32Id) {
+      fetch(`/admin/aulas/eliminar/${esp32Id}`, {  // Modificado para usar la ruta correcta
         method: 'DELETE',
       })
       .then(response => {
         if (!response.ok) {
-          throw new Error('Error al eliminar el aula');
+          return response.json().then(err => { throw new Error(err.message || 'Error al eliminar el aula'); });
         }
         return response.json();
       })
@@ -100,19 +102,51 @@ document.addEventListener('DOMContentLoaded', function() {
   
     // Función para cargar la lista de aulas desde el servidor
     function cargarAulas() {
-      fetch('/admin/aulas')
+      // Modificado para usar la ruta del panel de administración que ya devuelve la lista de aulas
+      fetch('/db_admin')
         .then(response => {
           if (!response.ok) {
             throw new Error('Error al cargar las aulas');
           }
-          return response.json();
+          // Como db_admin devuelve HTML, necesitamos parsear el HTML para extraer los datos de las aulas
+          return response.text();
         })
-        .then(aulas => {
+        .then(html => {
+          // Crear un parser temporal
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+          
+          // Buscar la tabla de aulas
+          const tableRows = doc.querySelectorAll('table#aulas-table tbody tr');
+          
+          // Convertir los datos de la tabla a un array de objetos
+          const aulas = Array.from(tableRows).map(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 3) {
+              return {
+                nombre: cells[0].textContent,
+                esp32_id: cells[1].textContent,
+                aula_id: cells[2].textContent
+              };
+            }
+            return null;
+          }).filter(aula => aula !== null);
+          
           actualizarTablaAulas(aulas);
         })
         .catch(error => {
           console.error('Error:', error);
-          tbodyAulas.innerHTML = `<tr><td colspan="4">Error al cargar las aulas: ${error.message}</td></tr>`;
+          // Alternativa: hacer una consulta directa al endpoint existente
+          // Como fallback, intentamos obtener las aulas directamente desde la base de datos
+          fetch('/test-db')
+            .then(response => response.json())
+            .then(() => {
+              // Si la conexión a la BD está bien, intentamos renderizar la página de db_admin manualmente
+              tbodyAulas.innerHTML = `<tr><td colspan="4">Error al cargar las aulas automáticamente. Por favor, recargue la página.</td></tr>`;
+            })
+            .catch(err => {
+              tbodyAulas.innerHTML = `<tr><td colspan="4">Error al cargar las aulas: ${error.message}</td></tr>`;
+            });
         });
     }
   
@@ -131,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>${aula.aula_id}</td>
             <td>
               <a href="/admin/aulas/editar/${aula.aula_id}" class="btn-editar">Editar</a>
-              <button class="btn-eliminar" data-id="${aula.aula_id}">Eliminar</button>
+              <button class="btn-eliminar" data-id="${aula.esp32_id}">Eliminar</button>
             </td>
           `;
           tbodyAulas.appendChild(tr);
@@ -141,4 +175,4 @@ document.addEventListener('DOMContentLoaded', function() {
         tbodyAulas.innerHTML = '<tr><td colspan="4">No hay aulas registradas.</td></tr>';
       }
     }
-  });
+});
