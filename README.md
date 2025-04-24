@@ -1,8 +1,11 @@
-# Base de Datos y Recursos de Información
-## TP - MovieWeb
+# Para usar:
 
-### Instalar dependencias
-`npm install express sqlite3 ejs`
+ssh -i labsuser.pem ubuntu@54.80.230.215
+cd profFinder
+node app.js
 
-### Ejecutar
-`node app.js`
+ssh -i labsuser.pem ubuntu@54.80.230.215
+cd rfid-consumer
+node consumer.js
+
+search http://54.80.230.215:3000/
