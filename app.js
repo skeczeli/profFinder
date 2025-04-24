@@ -112,54 +112,56 @@ app.get("/buscar", async (req, res) => {
 
 // Ruta para ver detalles de un Profesor específico
 app.get("/profesor/:id", async (req, res) => {
-  const profesorId = req.params.id;
+  const profesorId = parseInt(req.params.id, 10);
 
-  // Consulta para obtener datos del profesor
+  /* 1. Datos básicos del profesor */
   const queryProfesor = `
     SELECT profesor_id, nombre, email, tarjeta_id
-    FROM profesores
-    WHERE profesor_id = $1;
+      FROM profesores
+     WHERE profesor_id = $1;
   `;
-  // Consulta para obtener las materias del profesor
+
+  /* 2. Materias del profesor */
   const queryMaterias = `
     SELECT m.materia_id, m.nombre
-    FROM materias m
-    JOIN profesor_materia pm ON m.materia_id = pm.materia_id
-    WHERE pm.profesor_id = $1
-    ORDER BY m.nombre ASC;
+      FROM materias m
+      JOIN profesor_materia pm ON m.materia_id = pm.materia_id
+     WHERE pm.profesor_id = $1
+  ORDER BY m.nombre;
   `;
-  //REVISAR
-  // Consulta para obtener la última ubicación conocida (opcional, puede ser más compleja)
+
+  /* 3. Última ubicación registrada -------------- */
   const queryLastLocation = `
-    SELECT a.aula_id, a.nombre as aula_nombre, pa.isentry, pa.timestamp
-    FROM profesor_aula pa
-    JOIN aulas a ON pa.aula_id = a.aula_id
-    WHERE pa.profesor_id = $1
-    ORDER BY pa.timestamp DESC
-    LIMIT 1;
+    SELECT a.aula_id,
+           a.nombre                    AS aula_nombre,
+           (i.evento = 'entrada')      AS isentry,
+           i.fecha                     AS timestamp
+      FROM ingresos i
+      JOIN aulas a USING (aula_id)
+     WHERE i.profesor_id = $1
+  ORDER BY i.fecha DESC
+     LIMIT 1;
   `;
 
   try {
-    // Ejecutar consultas (pueden ser en paralelo)
-    const [profesorResult, materiasResult, locationResult] = await Promise.all([
-      db.query(queryProfesor, [profesorId]), // db.query si esperas 0 o 1 fila
-      db.queryAll(queryMaterias, [profesorId]), // db.queryAll para múltiples materias
-      db.query(queryLastLocation, [profesorId]), // db.query para la última ubicación
+    /* ejecutamos las tres consultas en paralelo */
+    const [profRes, matRes, locRes] = await Promise.all([
+      db.query(queryProfesor, [profesorId]), // 0-1 filas
+      db.queryAll(queryMaterias, [profesorId]), // varias filas
+      db.query(queryLastLocation, [profesorId]), // 0-1 filas
     ]);
 
-    // Verificar si el profesor existe
-    if (profesorResult.rows.length === 0) {
-      return res.status(404).send("Profesor no encontrado.");
+    if (profRes.rows.length === 0) {
+      return res.status(404).send("Profesor no encontrado");
     }
 
-    const profesorData = profesorResult.rows[0];
-    profesorData.materias = materiasResult; // Ya es un array de filas {materia_id, nombre}
-    profesorData.lastLocation =
-      locationResult.rows.length > 0 ? locationResult.rows[0] : null;
+    const profesor = profRes.rows[0];
+    profesor.materias = matRes; // array [{materia_id,nombre}]
+    profesor.lastLocation = locRes.rows[0] || null; // o null si no hay ingresos
 
-    res.render("profesor", { profesor: profesorData });
+    res.render("profesor", { profesor });
   } catch (err) {
-    console.error(`Error al cargar datos del profesor ${profesorId}:`, err);
+    console.error("Error al cargar datos del profesor:", err);
     res.status(500).send("Error al cargar los datos del profesor.");
   }
 });
