@@ -8,89 +8,93 @@ document.addEventListener("DOMContentLoaded", function () {
   const tarjetaInput = document.getElementById("prof-tarjeta");
 
   // Función para guardar profesor
-  guardarProfesorBtn.addEventListener("click", async function () {
-    // Validación básica
-    if (!nombreInput.value.trim()) {
-      alert("Por favor ingrese el nombre del profesor");
-      return;
-    }
-
-    if (!tarjetaInput.value.trim()) {
-      alert("Por favor ingrese el ID de tarjeta");
-      return;
-    }
-
-    // Preparar datos para enviar
-    const profesorData = {
-      nombre: nombreInput.value.trim(),
-      email: emailInput.value.trim() || null, // Permitir email vacío
-      tarjeta_id: tarjetaInput.value.trim(),
-    };
-
-    try {
-      const response = await fetch("/admin/profesores/crear", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(profesorData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error al guardar profesor");
+  if (guardarProfesorBtn) {
+    guardarProfesorBtn.addEventListener("click", async function () {
+      // Validación básica
+      if (!nombreInput.value.trim()) {
+        alert("Por favor ingrese el nombre del profesor");
+        return;
       }
 
-      alert("Profesor guardado correctamente");
-
-      // Limpiar formulario
-      nombreInput.value = "";
-      emailInput.value = "";
-      tarjetaInput.value = "";
-
-      // Recargar la página para mostrar el nuevo profesor
-      window.location.reload();
-    } catch (error) {
-      alert(`Error: ${error.message}`);
-    }
-  });
-
-  // Función para eliminar profesor
-  borrarProfesorBtn.addEventListener("click", async function () {
-    const tarjetaId = tarjetaInput.value.trim();
-
-    if (!tarjetaId) {
-      alert("Por favor ingrese el ID de tarjeta del profesor a eliminar");
-      return;
-    }
-
-    if (!confirm("¿Está seguro que desea eliminar este profesor?")) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/admin/profesores/eliminar/${tarjetaId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error al eliminar profesor");
+      if (!tarjetaInput.value.trim()) {
+        alert("Por favor ingrese el ID de tarjeta");
+        return;
       }
 
-      alert("Profesor eliminado correctamente");
+      // Preparar datos para enviar
+      const profesorData = {
+        nombre: nombreInput.value.trim(),
+        email: emailInput.value.trim() || null, // Permitir email vacío
+        tarjeta_id: tarjetaInput.value.trim(),
+      };
 
-      // Limpiar formulario
-      nombreInput.value = "";
-      emailInput.value = "";
-      tarjetaInput.value = "";
+      try {
+        const response = await fetch("/admin/profesores/crear", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(profesorData),
+        });
 
-      // Recargar la página
-      window.location.reload();
-    } catch (error) {
-      alert(`Error: ${error.message}`);
-    }
-  });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Error al guardar profesor");
+        }
+
+        alert("Profesor guardado correctamente");
+
+        // Limpiar formulario
+        nombreInput.value = "";
+        emailInput.value = "";
+        tarjetaInput.value = "";
+
+        // Recargar la página para mostrar el nuevo profesor
+        window.location.reload();
+      } catch (error) {
+        alert(`Error: ${error.message}`);
+      }
+    });
+  }
+
+  // Función para eliminar profesor desde el formulario
+  if (borrarProfesorBtn) {
+    borrarProfesorBtn.addEventListener("click", async function () {
+      const tarjetaId = tarjetaInput.value.trim();
+
+      if (!tarjetaId) {
+        alert("Por favor ingrese el ID de tarjeta del profesor a eliminar");
+        return;
+      }
+
+      if (!confirm("¿Está seguro que desea eliminar este profesor?")) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/admin/profesores/eliminar/${tarjetaId}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Error al eliminar profesor");
+        }
+
+        alert("Profesor eliminado correctamente");
+
+        // Limpiar formulario
+        nombreInput.value = "";
+        emailInput.value = "";
+        tarjetaInput.value = "";
+
+        // Recargar la página
+        window.location.reload();
+      } catch (error) {
+        alert(`Error: ${error.message}`);
+      }
+    });
+  }
 
   // Permitir seleccionar profesor de la tabla para editar/eliminar
   const tbody = document.getElementById("tbody-profesores");
@@ -108,4 +112,41 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+  
+  // Agregar event listeners a los botones de eliminar en la tabla
+  const botonesEliminarTabla = document.querySelectorAll('#tabla-profesores .btn-eliminar');
+  botonesEliminarTabla.forEach(btn => {
+    btn.addEventListener('click', async function(e) {
+      e.preventDefault(); // Prevenir comportamiento por defecto
+      
+      const tarjetaId = this.getAttribute('data-tarjeta');
+      
+      if (!tarjetaId) {
+        alert("Error: No se pudo obtener el ID de tarjeta");
+        return;
+      }
+      
+      if (!confirm(`¿Está seguro que desea eliminar el profesor con tarjeta ID: ${tarjetaId}?`)) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/admin/profesores/eliminar/${tarjetaId}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Error al eliminar profesor");
+        }
+
+        alert("Profesor eliminado correctamente");
+        
+        // Recargar la página
+        window.location.reload();
+      } catch (error) {
+        alert(`Error: ${error.message}`);
+      }
+    });
+  });
 });

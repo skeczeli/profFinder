@@ -335,9 +335,6 @@
           </div>
           <div style="display: flex; gap: 10px">
             <button id="guardar-profesor">Guardar Profesor</button>
-            <button id="borrar-profesor" class="btn-eliminar">
-              Eliminar Profesor
-            </button>
           </div>
           <p style="font-size: 0.8em; margin-top: 15px; color: #666">
             (Funcionalidad de guardar/borrar requiere implementación adicional)
@@ -371,10 +368,11 @@
                     class="btn-editar"
                     >Editar</a
                   >
-                  <!-- Puedes agregar también un botón de eliminar conectado a la API -->
                   <button
+                    id="borrar-profesor"
                     class="btn-eliminar"
                     data-tarjeta="<%= profesor.tarjeta_id %>"
+                    onclick="return confirm('¿Estás seguro de eliminar este profesor?')"
                   >
                     Eliminar
                   </button>
@@ -405,7 +403,7 @@
             />
           </div>
           <div class="input-group">
-            <label for="aula-esp32">ID ESP32 (Opcional):</label>
+            <label for="aula-esp32">ID ESP32:</label>
             <input
               type="text"
               id="aula-esp32"
