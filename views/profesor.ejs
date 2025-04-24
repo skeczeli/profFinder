@@ -13,24 +13,21 @@
 
     <%# Sección de Información Básica y Última Ubicación %>
     <div class="info-section">
-      <%# Usa clases para aplicar estilos desde styles.css %>
       <h2>Información del Profesor</h2>
       <p><strong>ID:</strong> <%= profesor.profesor_id %></p>
-      <p>
-        <strong>Email:</strong> <%= profesor.email ? profesor.email : 'No
-        disponible' %>
-      </p>
+      <p><strong>Email:</strong> <%= profesor.email || 'No disponible' %></p>
       <p><strong>Tarjeta ID:</strong> <%= profesor.tarjeta_id %></p>
 
       <% if (profesor.lastLocation) { %>
       <p>
         <strong>Última ubicación registrada:</strong>
-        Aula "<%= profesor.lastLocation.aula_nombre %>" (<%=
-        profesor.lastLocation.isentry ? '<span class="status-entry"
-          >Entrada</span
-        >' : '<span class="status-exit">Salida</span>' %> <%# Aplica clases para
-        estilizar %> el <%= new
-        Date(profesor.lastLocation.timestamp).toLocaleString('es-AR') %>)
+        Aula "<%= profesor.lastLocation.aula_nombre %>" <% if
+        (profesor.lastLocation.isentry) { %>
+        <span class="status-entry">Entrada</span>
+        <% } else { %>
+        <span class="status-exit">Salida</span>
+        <% } %> el <%= new Date(profesor.lastLocation.timestamp)
+        .toLocaleString('es-AR') %>
       </p>
       <% } else { %>
       <p>
