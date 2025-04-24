@@ -1,8 +1,6 @@
-// Script para manejar el formulario de profesores
 document.addEventListener("DOMContentLoaded", function () {
   // Seleccionar botones y campos del formulario
   const guardarProfesorBtn = document.getElementById("guardar-profesor");
-  const borrarProfesorBtn = document.getElementById("borrar-profesor");
   const nombreInput = document.getElementById("prof-nombre");
   const emailInput = document.getElementById("prof-email");
   const tarjetaInput = document.getElementById("prof-tarjeta");
@@ -51,45 +49,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Función para eliminar profesor desde el formulario
-  if (borrarProfesorBtn) {
-    borrarProfesorBtn.addEventListener("click", async function () {
-      const tarjetaId = tarjetaInput.value.trim();
-
-      if (!tarjetaId) {
-        alert("Por favor ingrese el ID de tarjeta del profesor a eliminar");
-        return;
-      }
-
-      if (!confirm("¿Está seguro que desea eliminar este profesor?")) {
-        return;
-      }
-
-      try {
-        const response = await fetch(`/admin/profesores/eliminar/${tarjetaId}`, {
-          method: "DELETE",
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Error al eliminar profesor");
-        }
-
-        alert("Profesor eliminado correctamente");
-
-        // Limpiar formulario
-        nombreInput.value = "";
-        emailInput.value = "";
-        tarjetaInput.value = "";
-
-        // Recargar la página
-        window.location.reload();
-      } catch (error) {
-        alert(`Error: ${error.message}`);
-      }
-    });
-  }
-
   // Permitir seleccionar profesor de la tabla para editar/eliminar
   const tbody = document.getElementById("tbody-profesores");
   if (tbody) {
@@ -107,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
   
-  // Agregar event listeners a los botones de eliminar en la tabla
+  // Manejar botones de eliminar en la tabla
   const botonesEliminarTabla = document.querySelectorAll('#tabla-profesores .btn-eliminar');
   botonesEliminarTabla.forEach(btn => {
     btn.addEventListener('click', async function(e) {
@@ -117,6 +76,11 @@ document.addEventListener("DOMContentLoaded", function () {
       
       if (!tarjetaId) {
         alert("Error: No se pudo obtener el ID de tarjeta");
+        return;
+      }
+      
+      // Agregar la confirmación antes de eliminar
+      if (!confirm("¿Está seguro que desea eliminar este profesor?")) {
         return;
       }
       
