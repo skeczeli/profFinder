@@ -11,7 +11,6 @@
 
     <h1><%= profesor.nombre %></h1>
 
-    <%# Sección de Información Básica y Última Ubicación %>
     <div class="info-section">
       <h2>Información del Profesor</h2>
       <p><strong>ID:</strong> <%= profesor.profesor_id %></p>
@@ -27,8 +26,8 @@
         >
         <% } else { %>
         <span class="status-exit">Profesor no disponible</span>
-        <% } %> desde <%= new Date(profesor.lastLocation.timestamp)
-        .toLocaleString('es-AR') %>
+        <% } %> desde <%= new
+        Date(profesor.lastLocation.timestamp).toLocaleString('es-AR') %>
       </p>
       <% } else { %>
       <p>
@@ -37,16 +36,13 @@
       <% } %>
     </div>
 
-    <%# Sección de Materias %>
     <div class="info-section">
       <h2>Materias Dictadas</h2>
       <% if (profesor.materias && profesor.materias.length > 0) { %>
       <ul>
         <% profesor.materias.forEach((materia) => { %>
         <li>
-          <a href="/materia/<%= materia.materia_id %>">
-            <%= materia.nombre %>
-          </a>
+          <a href="/materia/<%= materia.materia_id %>"><%= materia.nombre %></a>
           (ID: <%= materia.materia_id %>)
         </li>
         <% }); %>
@@ -56,17 +52,19 @@
       <% } %>
     </div>
 
-    <%# Formulario de Contacto %>
+    <% if (profesor.lastLocation && profesor.lastLocation.isentry &&
+    profesor.lastLocation.esp32_id) { %>
     <div class="contact-container">
       <h2>Contactar a <%= profesor.nombre %></h2>
-      <%# RECUERDA: Cambia action y method según implementes el envío %>
-      <form action="/ruta_para_enviar_mensaje" method="POST">
+      <form
+        action="/profesor/<%= profesor.profesor_id %>/preguntar"
+        method="POST"
+      >
         <input
           type="hidden"
-          name="profesorId"
-          value="<%= profesor.profesor_id %>"
+          name="esp32Id"
+          value="<%= profesor.lastLocation.esp32_id %>"
         />
-
         <div class="input-group">
           <label for="alumno">Tu Nombre</label>
           <input
@@ -77,7 +75,6 @@
             required
           />
         </div>
-
         <div class="input-group">
           <label for="subject">Tu Consulta</label>
           <textarea
@@ -87,27 +84,30 @@
             placeholder="Escribe tu consulta aquí..."
             required
           ></textarea>
-          <span id="char-count" class="char-count"
-            >Caracteres restantes: <span id="char-count-value">200</span></span
-          >
+          <span id="char-count" class="char-count">
+            Caracteres restantes: <span id="char-count-value">200</span>
+          </span>
         </div>
-
         <button type="submit">Enviar Consulta</button>
       </form>
     </div>
+    <% } else { %>
+    <p class="disabled-form">
+      El profesor no está disponible para recibir mensajes en este momento.
+    </p>
+    <% } %>
 
     <script>
-      // Script contador de caracteres
       const textarea = document.getElementById("subject");
       const charCountValue = document.getElementById("char-count-value");
-      const maxLength = textarea.getAttribute("maxlength");
-
-      charCountValue.textContent = maxLength; // Establece el valor inicial
-
-      textarea.addEventListener("input", function () {
-        const currentLength = this.value.length;
-        charCountValue.textContent = maxLength - currentLength;
-      });
+      if (textarea && charCountValue) {
+        const maxLength = textarea.getAttribute("maxlength");
+        charCountValue.textContent = maxLength;
+        textarea.addEventListener("input", function () {
+          const currentLength = this.value.length;
+          charCountValue.textContent = maxLength - currentLength;
+        });
+      }
     </script>
   </body>
 </html>

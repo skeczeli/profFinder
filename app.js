@@ -4,6 +4,8 @@ const ejs = require("ejs");
 require("dotenv").config(); // Asegúrate que esté al principio
 const db = require("./db"); // Importa tu módulo de DB
 const session = require("express-session");
+const mqtt = require("mqtt");
+const bodyParser = require("body-parser");
 
 const app = express();
 const port = process.env.PORT || 3000; // Usa el puerto 3000 si no está definido en .env
@@ -22,6 +24,8 @@ app.use(
 
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use(bodyParser.urlencoded({ extended: true }));
+
 // Configurar el motor de plantillas EJS
 app.set("view engine", "ejs");
 
@@ -33,6 +37,17 @@ const requireAuth = (req, res, next) => {
     return res.redirect("/admin_login"); // No autenticado, redirigir a login
   }
 };
+
+// MQTT connection
+const mqttClient = mqtt.connect("mqtt://54.80.230.215:1883", {
+  username: "mqttUser",
+  password: "mqttPass",
+  clientId: "NodeJSPublisher",
+});
+
+mqttClient.on("connect", () => {
+  console.log("Conectado a broker MQTT");
+});
 
 // --- Rutas Públicas ---
 
@@ -164,6 +179,20 @@ app.get("/profesor/:id", async (req, res) => {
     console.error("Error al cargar datos del profesor:", err);
     res.status(500).send("Error al cargar los datos del profesor.");
   }
+});
+
+// Ruta para procesar envío de formulario
+app.post("/profesor/:id/preguntar", (req, res) => {
+  const { alumno, subject, esp32Id } = req.body;
+  const mensaje = `${alumno}: ${subject}`;
+  const topic = `esp32/${esp32Id}/display`;
+
+  mqttClient.publish(topic, mensaje, { qos: 0 }, (err) => {
+    if (err) console.error("Error publicando a MQTT:", err);
+    else console.log(`Publicado en ${topic}: ${mensaje}`);
+  });
+
+  res.redirect(`/profesor/${req.params.id}?enviado=1`);
 });
 
 // IMPLEMENTAR
@@ -436,95 +465,86 @@ app.post("/admin/profesores/actualizar/:id", requireAuth, async (req, res) => {
 
 // --- Rutas de Administración de Aulas ---
 // Ruta para crear un aula (POST)
-app.post(
-  "/admin/aula/crear",
-  requireAuth,
-  express.json(),
-  async (req, res) => {
-    const { nombre, esp32_id } = req.body;
+app.post("/admin/aula/crear", requireAuth, express.json(), async (req, res) => {
+  const { nombre, esp32_id } = req.body;
 
-    // Validación básica
-    if (!nombre || !esp32_id) {
+  // Validación básica
+  if (!nombre || !esp32_id) {
+    return res.status(400).json({
+      success: false,
+      message: "El nombre y el ID del ESP32 son obligatorios",
+    });
+  }
+
+  try {
+    // Verificar si ya existe un aula con ese ESP32 ID
+    const existingAula = await db.query(
+      "SELECT aula_id FROM aulas WHERE esp32_id = $1",
+      [esp32_id]
+    );
+
+    if (existingAula.rows.length > 0) {
       return res.status(400).json({
         success: false,
-        message: "El nombre y el ID del ESP32 son obligatorios",
+        message: "Ya existe un aula con ese ID de ESP32",
       });
     }
 
-    try {
-      // Verificar si ya existe un aula con ese ESP32 ID
-      const existingAula = await db.query(
-        "SELECT aula_id FROM aulas WHERE esp32_id = $1",
-        [esp32_id]
-      );
+    // Insertar la nueva aula
+    const result = await db.query(
+      "INSERT INTO aulas (nombre, esp32_id) VALUES ($1, $2) RETURNING aula_id",
+      [nombre, esp32_id]
+    );
 
-      if (existingAula.rows.length > 0) {
-        return res.status(400).json({
-          success: false,
-          message: "Ya existe un aula con ese ID de ESP32",
-        });
-      }
-
-      // Insertar la nueva aula
-      const result = await db.query(
-        "INSERT INTO aulas (nombre, esp32_id) VALUES ($1, $2) RETURNING aula_id",
-        [nombre, esp32_id]
-      );
-
-      res.status(201).json({
-        success: true,
-        message: "Aula creada correctamente",
-        aula_id: result.rows[0].aula_id,
-      });
-    } catch (err) {
-      console.error("Error al crear aula:", err);
-      res.status(500).json({
-        success: false,
-        message: "Error al crear el aula en la base de datos",
-        error: err.message,
-      });
-    }
+    res.status(201).json({
+      success: true,
+      message: "Aula creada correctamente",
+      aula_id: result.rows[0].aula_id,
+    });
+  } catch (err) {
+    console.error("Error al crear aula:", err);
+    res.status(500).json({
+      success: false,
+      message: "Error al crear el aula en la base de datos",
+      error: err.message,
+    });
   }
-);
+});
 
 // Ruta para eliminar un aula (DELETE)
-app.delete(
-  "/admin/aula/eliminar/:esp32Id",
-  requireAuth,
-  async (req, res) => {
-    const { esp32Id } = req.params;
+app.delete("/admin/aula/eliminar/:esp32Id", requireAuth, async (req, res) => {
+  const { esp32Id } = req.params;
 
-    try {
-      // Verificar si existe el aula
-      const aula = await db.query(
-        "SELECT aula_id FROM aulas WHERE esp32_id = $1",
-        [esp32Id]
-      );
+  try {
+    // Verificar si existe el aula
+    const aula = await db.query(
+      "SELECT aula_id FROM aulas WHERE esp32_id = $1",
+      [esp32Id]
+    );
 
-      if (aula.rows.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: "Aula no encontrada",
-        });
-      }
-
-      // Eliminar el aula
-      await db.query("DELETE FROM aulas WHERE esp32_id = $1", [esp32Id]);
-
-      res.json({
-        success: true,
-        message: "Aula eliminada correctamente",
-      });
-    } catch (err) {
-      console.error("Error al eliminar aula:", err);
-      res.status(500).json({
+    if (aula.rows.length === 0) {
+      return res.status(404).json({
         success: false,
-        message: "Error al eliminar el aula de la base de datos",
-        error: err.message,
+        message: "Aula no encontrada",
       });
     }
+
+    // Eliminar el aula
+    await db.query("DELETE FROM aulas WHERE esp32_id = $1", [esp32Id]);
+
+    res.json({
+      success: true,
+      message: "Aula eliminada correctamente",
+    });
+  } catch (err) {
+    console.error("Error al eliminar aula:", err);
+    res.status(500).json({
+      success: false,
+      message: "Error al eliminar el aula de la base de datos",
+      error: err.message,
+    });
   }
-);
+});
 
 // Ruta para mostrar el formulario de edición de aula
 app.get("/admin/aula/editar/:id", requireAuth, async (req, res) => {
@@ -658,43 +678,39 @@ app.post(
 );
 
 // Ruta para eliminar una materia (DELETE)
-app.delete(
-  "/admin/materias/eliminar/:id",
-  requireAuth,
-  async (req, res) => {
-    const materiaId = req.params.id;
+app.delete("/admin/materias/eliminar/:id", requireAuth, async (req, res) => {
+  const materiaId = req.params.id;
 
-    try {
-      // Verificar si existe la materia
-      const materia = await db.query(
-        "SELECT materia_id FROM materias WHERE materia_id = $1",
-        [materiaId]
-      );
+  try {
+    // Verificar si existe la materia
+    const materia = await db.query(
+      "SELECT materia_id FROM materias WHERE materia_id = $1",
+      [materiaId]
+    );
 
-      if (materia.rows.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: "Materia no encontrada",
-        });
-      }
-
-      // Eliminar la materia
-      await db.query("DELETE FROM materias WHERE materia_id = $1", [materiaId]);
-
-      res.json({
-        success: true,
-        message: "Materia eliminada correctamente",
-      });
-    } catch (err) {
-      console.error("Error al eliminar materia:", err);
-      res.status(500).json({
+    if (materia.rows.length === 0) {
+      return res.status(404).json({
         success: false,
-        message: "Error al eliminar la materia de la base de datos",
-        error: err.message,
+        message: "Materia no encontrada",
       });
     }
+
+    // Eliminar la materia
+    await db.query("DELETE FROM materias WHERE materia_id = $1", [materiaId]);
+
+    res.json({
+      success: true,
+      message: "Materia eliminada correctamente",
+    });
+  } catch (err) {
+    console.error("Error al eliminar materia:", err);
+    res.status(500).json({
+      success: false,
+      message: "Error al eliminar la materia de la base de datos",
+      error: err.message,
+    });
   }
-);
+});
 
 // Ruta para mostrar el formulario de edición de materia
 app.get("/admin/materias/editar/:id", requireAuth, async (req, res) => {
@@ -780,10 +796,10 @@ app.post("/admin/materias/actualizar/:id", requireAuth, async (req, res) => {
     }
 
     // Actualizar los datos de la materia
-    await db.query(
-      "UPDATE materias SET nombre = $1 WHERE materia_id = $2",
-      [nombre, materiaId]
-    );
+    await db.query("UPDATE materias SET nombre = $1 WHERE materia_id = $2", [
+      nombre,
+      materiaId,
+    ]);
 
     // Redirigir al panel de administración
     req.session.message = "Materia actualizada correctamente";
@@ -796,8 +812,6 @@ app.post("/admin/materias/actualizar/:id", requireAuth, async (req, res) => {
     });
   }
 });
-
-
 
 // --- Rutas de Administración ---
 app.get("/admin_login", (req, res) => {
