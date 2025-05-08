@@ -149,14 +149,14 @@ app.get("/profesor/:id", async (req, res) => {
   const queryLastLocation = `
     SELECT a.aula_id,
            a.nombre                    AS aula_nombre,
+           a.esp32_id                  AS esp32_id,
            (i.evento = 'entrada')      AS isentry,
            i.fecha                     AS timestamp,
-           i.esp32                     AS esp32_id
-      FROM ingresos i
-      JOIN aulas a USING (aula_id)
-     WHERE i.profesor_id = $1
-  ORDER BY i.fecha DESC
-     LIMIT 1;
+    FROM ingresos i
+    JOIN aulas a USING (aula_id)
+    WHERE i.profesor_id = $1
+    ORDER BY i.fecha DESC
+    LIMIT 1;
   `;
 
   try {
