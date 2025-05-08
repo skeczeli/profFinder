@@ -269,6 +269,8 @@ app.post(
       });
     }
 
+    tarjeta_id = tarjeta_id.uppercase().trim();
+
     try {
       // Verificar si ya existe un profesor con esa tarjeta_id
       const existingProf = await db.query(
@@ -478,6 +480,8 @@ app.post("/admin/aula/crear", requireAuth, express.json(), async (req, res) => {
     });
   }
 
+  esp32_id = esp32_id.uppercase().trim();
+
   try {
     // Verificar si ya existe un aula con ese ESP32 ID
     const existingAula = await db.query(
@@ -642,6 +646,8 @@ app.post(
         message: "El nombre de la materia es obligatorio",
       });
     }
+
+    nombre = nombre.title().trim();
 
     try {
       // Verificar si ya existe una materia con ese nombre
