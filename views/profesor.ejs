@@ -67,28 +67,18 @@
         />
         <div class="input-group">
           <label for="alumno">Tu Nombre</label>
-          <input
-            type="text"
+          <textarea
             id="alumno"
             name="alumno"
-            placeholder="Ingresa tu nombre completo"
-            required
-          />
-        </div>
-        <div class="input-group">
-          <label for="subject">Tu Consulta</label>
-          <textarea
-            id="subject"
-            name="subject"
-            maxlength="200"
-            placeholder="Escribe tu consulta aquí..."
+            maxlength="16"
+            placeholder="Ingresa tu nombre"
             required
           ></textarea>
           <span id="char-count" class="char-count">
-            Caracteres restantes: <span id="char-count-value">200</span>
+            Caracteres restantes: <span id="char-count-value">16</span>
           </span>
         </div>
-        <button type="submit">Enviar Consulta</button>
+        <button type="submit">Registrar Consulta</button>
       </form>
     </div>
     <% } else { %>
@@ -98,7 +88,7 @@
     <% } %>
 
     <script>
-      const textarea = document.getElementById("subject");
+      const textarea = document.getElementById("alumno");
       const charCountValue = document.getElementById("char-count-value");
       if (textarea && charCountValue) {
         const maxLength = textarea.getAttribute("maxlength");
