@@ -296,7 +296,6 @@
         Profesores
       </button>
       <button class="collapsible" onclick="openTab('aulas')">
-        <!-- AÑADIDO BOTÓN AULAS -->
         Aulas
       </button>
       <button class="collapsible" onclick="openTab('materias')">
@@ -349,7 +348,6 @@
                 <th>ID de Tarjeta</th>
                 <th>ID Profesor</th>
                 <th>Acciones</th>
-                <!-- Nueva columna para acciones -->
               </tr>
             </thead>
             <tbody id="tbody-profesores">
@@ -389,7 +387,6 @@
 
       <!-- Pestaña de Aulas -->
       <div id="aulas" class="tab-content">
-        <!-- Puedes añadir un form para aulas aquí si lo necesitas -->
         <div class="form-container">
           <h2>Registrar Aula</h2>
           <div class="input-group">
@@ -410,7 +407,6 @@
           </div>
           <div style="display: flex; gap: 10px">
             <button id="guardar-aula">Guardar Aula</button>
-            <button id="borrar-aula" class="btn-eliminar">Eliminar Aula</button>
           </div>
           <p style="font-size: 0.8em; margin-top: 15px; color: #666">
             (Funcionalidad requiere implementación adicional)
@@ -436,7 +432,7 @@
                     <td><%= aula.esp32_id ? aula.esp32_id : '-' %></td>
                     <td><%= aula.aula_id %></td>
                     <td>
-                      <a href="/admin/aulas/editar/<%= aula.aula_id %>" class="btn-editar">Editar</a>
+                      <a href="/admin/aula/editar/<%= aula.aula_id %>" class="btn-editar">Editar</a>
                       <button class="btn-eliminar" data-id="<%= aula.aula_id %>">Eliminar</button>
                     </td>
                   </tr>
@@ -461,13 +457,7 @@
           </div>
           <div style="display: flex; gap: 10px">
             <button id="guardar-materia">Guardar Materia</button>
-            <button id="borrar-materia" class="btn-eliminar">
-              Eliminar Materia
-            </button>
           </div>
-          <p style="font-size: 0.8em; margin-top: 15px; color: #666">
-            (Funcionalidad requiere implementación adicional)
-          </p>
         </div>
 
         <div class="table-container">
@@ -506,35 +496,31 @@
             <label for="asign-profesor">Profesor:</label>
             <select id="asign-profesor">
               <option value="">Seleccione un profesor</option>
-              <% if (profesores && profesores.length > 0) { %> <%
-              profesores.forEach(profesor => { %>
-              <option value="<%= profesor.profesor_id %>">
-                <%= profesor.nombre %> (ID: <%= profesor.profesor_id %>)
-              </option>
-              <% }); %> <% } %>
+              <% if (profesores && profesores.length > 0) { %> 
+                <% profesores.forEach(profesor => { %>
+                  <option value="<%= profesor.profesor_id %>">
+                    <%= profesor.nombre %> (ID: <%= profesor.profesor_id %>)
+                  </option>
+                <% }); %> 
+              <% } %>
             </select>
           </div>
           <div class="input-group">
             <label for="asign-materia">Materia:</label>
             <select id="asign-materia">
               <option value="">Seleccione una materia</option>
-              <% if (materias && materias.length > 0) { %> <%
-              materias.forEach(materia => { %>
-              <option value="<%= materia.materia_id %>">
-                <%= materia.nombre %> (ID: <%= materia.materia_id %>)
-              </option>
-              <% }); %> <% } %>
+              <% if (materias && materias.length > 0) { %> 
+                <% materias.forEach(materia => { %>
+                  <option value="<%= materia.materia_id %>">
+                    <%= materia.nombre %> (ID: <%= materia.materia_id %>)
+                  </option>
+                <% }); %> 
+              <% } %>
             </select>
           </div>
           <div style="display: flex; gap: 10px">
             <button id="guardar-asignacion">Guardar Asignación</button>
-            <button id="borrar-asignacion" class="btn-eliminar">
-              Eliminar Asignación
-            </button>
           </div>
-          <p style="font-size: 0.8em; margin-top: 15px; color: #666">
-            (Funcionalidad requiere implementación adicional)
-          </p>
         </div>
 
         <div class="table-container">

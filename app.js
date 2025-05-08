@@ -527,7 +527,7 @@ app.delete(
 );
 
 // Ruta para mostrar el formulario de edición de aula
-app.get("/admin/aulas/editar/:id", requireAuth, async (req, res) => {
+app.get("/admin/aula/editar/:id", requireAuth, async (req, res) => {
   const aulaId = req.params.id;
 
   try {
@@ -560,7 +560,7 @@ app.get("/admin/aulas/editar/:id", requireAuth, async (req, res) => {
 });
 
 // Ruta para procesar la actualización de un aula
-app.post("/admin/aulas/actualizar/:id", requireAuth, async (req, res) => {
+app.post("/admin/aula/actualizar/:id", requireAuth, async (req, res) => {
   const aulaId = req.params.id;
   const { nombre, esp32_id } = req.body;
 
