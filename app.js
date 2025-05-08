@@ -150,7 +150,8 @@ app.get("/profesor/:id", async (req, res) => {
     SELECT a.aula_id,
            a.nombre                    AS aula_nombre,
            (i.evento = 'entrada')      AS isentry,
-           i.fecha                     AS timestamp
+           i.fecha                     AS timestamp,
+           i.esp32                     AS esp32_id
       FROM ingresos i
       JOIN aulas a USING (aula_id)
      WHERE i.profesor_id = $1
