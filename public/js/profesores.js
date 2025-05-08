@@ -48,23 +48,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
-
-  // Permitir seleccionar profesor de la tabla para editar/eliminar
-  const tbody = document.getElementById("tbody-profesores");
-  if (tbody) {
-    tbody.addEventListener("click", function (e) {
-      const row = e.target.closest("tr");
-      if (!row) return;
-
-      const cells = row.querySelectorAll("td");
-      if (cells.length >= 3) {
-        nombreInput.value = cells[0].textContent;
-        emailInput.value =
-          cells[1].textContent !== "-" ? cells[1].textContent : "";
-        tarjetaInput.value = cells[2].textContent;
-      }
-    });
-  }
   
   // Manejar botones de eliminar en la tabla
   const botonesEliminarTabla = document.querySelectorAll('#tabla-profesores .btn-eliminar');

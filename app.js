@@ -437,7 +437,7 @@ app.post("/admin/profesores/actualizar/:id", requireAuth, async (req, res) => {
 // --- Rutas de Administración de Aulas ---
 // Ruta para crear un aula (POST)
 app.post(
-  "/admin/aulas/crear",
+  "/admin/aula/crear",
   requireAuth,
   express.json(),
   async (req, res) => {
@@ -489,7 +489,7 @@ app.post(
 
 // Ruta para eliminar un aula (DELETE)
 app.delete(
-  "/admin/aulas/eliminar/:esp32Id",
+  "/admin/aula/eliminar/:esp32Id",
   requireAuth,
   async (req, res) => {
     const { esp32Id } = req.params;
