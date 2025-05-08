@@ -175,7 +175,8 @@ app.get("/profesor/:id", async (req, res) => {
     profesor.materias = matRes; // array [{materia_id,nombre}]
     profesor.lastLocation = locRes.rows[0] || null; // o null si no hay ingresos
 
-    res.render("profesor", { profesor });
+    const enviado = req.query.enviado === "1";
+    res.render("profesor", { profesor, enviado });
   } catch (err) {
     console.error("Error al cargar datos del profesor:", err);
     res.status(500).send("Error al cargar los datos del profesor.");
