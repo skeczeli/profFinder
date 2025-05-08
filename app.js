@@ -185,7 +185,7 @@ app.get("/profesor/:id", async (req, res) => {
 // Ruta para procesar envío de formulario
 app.post("/profesor/:id/preguntar", (req, res) => {
   const { alumno, subject, esp32Id } = req.body;
-  const mensaje = `${alumno}: ${subject}`;
+  const mensaje = `${alumno}`;
   const topic = `esp32/${esp32Id}/display`;
 
   mqttClient.publish(topic, mensaje, { qos: 0 }, (err) => {
@@ -910,7 +910,6 @@ app.delete(
     }
   }
 );
-
 
 // --- Rutas de Administración ---
 app.get("/admin_login", (req, res) => {
