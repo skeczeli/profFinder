@@ -242,32 +242,6 @@
               />
             </div>
 
-            <% if (materias && materias.length > 0) { %>
-            <div class="form-group">
-              <label class="form-label">Materias asignadas:</label>
-              <div class="materias-grid">
-                <% materias.forEach(function(materia) { %>
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    name="materias[]"
-                    value="<%= materia.materia_id %>"
-                    id="materia<%= materia.materia_id %>"
-                    <% if (materiasAsignadas.includes(materia.materia_id)) { %>checked<% } %>
-                    >
-                  <label
-                    class="form-check-label"
-                    for="materia<%= materia.materia_id %>"
-                  >
-                    <%= materia.nombre %>
-                  </label>
-                </div>
-                <% }); %>
-              </div>
-            </div>
-            <% } %>
-
             <div class="btn-row">
               <a href="/db_admin" class="btn btn-secondary">Cancelar</a>
               <button type="submit" class="btn btn-primary">
