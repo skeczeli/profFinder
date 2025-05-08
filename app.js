@@ -814,6 +814,104 @@ app.post("/admin/materias/actualizar/:id", requireAuth, async (req, res) => {
   }
 });
 
+// --- Rutas de Administración de Asignaciones ---
+// Ruta para crear una asignación (POST)
+app.post(
+  "/admin/asignaciones/crear",
+  requireAuth,
+  express.json(),
+  async (req, res) => {
+    const { profesor_id, materia_id } = req.body;
+
+    // Validación básica
+    if (!profesor_id || !materia_id) {
+      return res.status(400).json({
+        success: false,
+        message: "El ID del profesor y de la materia son obligatorios",
+      });
+    }
+
+    try {
+      // Verificar si ya existe esta asignación
+      const existingAsign = await db.query(
+        "SELECT * FROM profesor_materia WHERE profesor_id = $1 AND materia_id = $2",
+        [profesor_id, materia_id]
+      );
+
+      if (existingAsign.rows.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Esta asignación ya existe",
+        });
+      }
+
+      // Insertar la nueva asignación
+      await db.query(
+        "INSERT INTO profesor_materia (profesor_id, materia_id) VALUES ($1, $2)",
+        [profesor_id, materia_id]
+      );
+
+      res.status(201).json({
+        success: true,
+        message: "Asignación creada correctamente",
+      });
+    } catch (err) {
+      console.error("Error al crear asignación:", err);
+      res.status(500).json({
+        success: false,
+        message: "Error al crear la asignación en la base de datos",
+        error: err.message,
+      });
+    }
+  }
+);
+
+// Ruta para eliminar una asignación (DELETE)
+app.delete(
+  "/admin/asignaciones/eliminar",
+  requireAuth,
+  express.json(),
+  async (req, res) => {
+    const { profesor_id, materia_id } = req.body;
+
+    // Validación básica
+    if (!profesor_id || !materia_id) {
+      return res.status(400).json({
+        success: false,
+        message: "El ID del profesor y de la materia son obligatorios",
+      });
+    }
+
+    try {
+      // Eliminar la asignación
+      const result = await db.query(
+        "DELETE FROM profesor_materia WHERE profesor_id = $1 AND materia_id = $2 RETURNING *",
+        [profesor_id, materia_id]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Asignación no encontrada",
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Asignación eliminada correctamente",
+      });
+    } catch (err) {
+      console.error("Error al eliminar asignación:", err);
+      res.status(500).json({
+        success: false,
+        message: "Error al eliminar la asignación de la base de datos",
+        error: err.message,
+      });
+    }
+  }
+);
+
+
 // --- Rutas de Administración ---
 app.get("/admin_login", (req, res) => {
   // Si ya está logueado, quizás redirigir a /db_admin
@@ -849,7 +947,7 @@ app.post("/admin/logout", (req, res) => {
 app.get("/db_admin", requireAuth, async (req, res) => {
   try {
     // Obtener listas de todas las entidades principales
-    const [profesores, aulas, materias] = await Promise.all([
+    const [profesores, aulas, materias, asignaciones] = await Promise.all([
       db.queryAll(
         "SELECT profesor_id, nombre, email, tarjeta_id FROM profesores ORDER BY nombre ASC"
       ),
@@ -859,12 +957,24 @@ app.get("/db_admin", requireAuth, async (req, res) => {
       db.queryAll(
         "SELECT materia_id, nombre FROM materias ORDER BY nombre ASC"
       ),
+      db.queryAll(
+        `SELECT 
+          pm.profesor_id, 
+          pm.materia_id, 
+          p.nombre AS profesor_nombre, 
+          m.nombre AS materia_nombre
+         FROM profesor_materia pm
+         JOIN profesores p ON pm.profesor_id = p.profesor_id
+         JOIN materias m ON pm.materia_id = m.materia_id
+         ORDER BY p.nombre ASC, m.nombre ASC`
+      ),
     ]);
 
     res.render("db_admin", {
       profesores: profesores,
       aulas: aulas,
       materias: materias,
+      asignaciones: asignaciones,
       error: null,
     });
   } catch (err) {
@@ -874,6 +984,7 @@ app.get("/db_admin", requireAuth, async (req, res) => {
       profesores: [],
       aulas: [],
       materias: [],
+      asignaciones: [],
       error: "No se pudieron cargar los datos.",
     });
   }
