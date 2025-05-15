@@ -20,12 +20,22 @@
       <% if (profesores && profesores.length > 0) { %>
       <ul>
         <% profesores.forEach(profesor => { %>
-          <li class="profesor-item">
-            <a href="/profesor/<%= profesor.profesor_id %>"><%= profesor.nombre %></a>
-            <% if (profesor.email) { %>
-              <span class="profesor-email"><%= profesor.email %></span>
-            <% } %>
-          </li>
+        <li
+          class="profesor-item"
+          data-profesor-id="<%= profesor.profesor_id %>"
+        >
+          <span
+            class="status-indicator <%= profesor.isentry ? 'status-active' : 'status-inactive' %>"
+          >
+          </span>
+          <a href="/profesor/<%= profesor.profesor_id %>"
+            ><%= profesor.nombre %></a
+          >
+          <% if (profesor.email) { %>
+          <span class="profesor-email"><%= profesor.email %></span>
+          <% } %>
+        </li>
+
         <% }); %>
       </ul>
       <% } else if (!error) { %> <%# Solo muestra "no encontrado" si no hubo un
@@ -53,5 +63,31 @@
       <p>No se encontraron materias con ese nombre.</p>
       <% } %>
     </div>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <script>
+      const client = mqtt.connect("ws://54.80.230.215:9001");
+
+      client.on("connect", () => {
+        console.log("MQTT conectado en vista de resultados");
+        client.subscribe("profesores/estado");
+      });
+
+      client.on("message", (topic, message) => {
+        const data = JSON.parse(message.toString());
+
+        const li = document.querySelector(
+          `li[data-profesor-id='${data.profesor_id}']`
+        );
+        if (!li) return;
+
+        const dot = li.querySelector(".status-indicator");
+        if (!dot) return;
+
+        dot.classList.remove("status-active", "status-inactive");
+        dot.classList.add(
+          data.evento === "entrada" ? "status-active" : "status-inactive"
+        );
+      });
+    </script>
   </body>
 </html>
