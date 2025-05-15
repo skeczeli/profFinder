@@ -269,7 +269,7 @@ app.post(
       });
     }
 
-    tarjeta_id = tarjeta_id.uppercase().trim();
+    tarjeta_id = String(tarjeta_id).toUpperCase().trim();
 
     try {
       // Verificar si ya existe un profesor con esa tarjeta_id
@@ -480,7 +480,7 @@ app.post("/admin/aula/crear", requireAuth, express.json(), async (req, res) => {
     });
   }
 
-  esp32_id = esp32_id.uppercase().trim();
+  esp32_id = String(esp32_id).toUpperCase().trim();
 
   try {
     // Verificar si ya existe un aula con ese ESP32 ID
@@ -647,7 +647,7 @@ app.post(
       });
     }
 
-    nombre = nombre.title().trim();
+    nombre = nombre.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 
     try {
       // Verificar si ya existe una materia con ese nombre
