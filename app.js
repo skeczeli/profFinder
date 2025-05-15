@@ -259,7 +259,7 @@ app.post(
   requireAuth,
   express.json(),
   async (req, res) => {
-    const { nombre, email, tarjeta_id } = req.body;
+    let { nombre, email, tarjeta_id } = req.body;
 
     // Validación básica
     if (!nombre || !tarjeta_id) {
@@ -470,7 +470,7 @@ app.post("/admin/profesores/actualizar/:id", requireAuth, async (req, res) => {
 // --- Rutas de Administración de Aulas ---
 // Ruta para crear un aula (POST)
 app.post("/admin/aula/crear", requireAuth, express.json(), async (req, res) => {
-  const { nombre, esp32_id } = req.body;
+  let { nombre, esp32_id } = req.body;
 
   // Validación básica
   if (!nombre || !esp32_id) {
@@ -637,7 +637,7 @@ app.post(
   requireAuth,
   express.json(),
   async (req, res) => {
-    const { nombre } = req.body;
+    let { nombre } = req.body;
 
     // Validación básica
     if (!nombre) {
