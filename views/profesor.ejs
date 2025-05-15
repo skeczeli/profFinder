@@ -6,7 +6,7 @@
   </head>
   <body>
     <% if (enviado) { %>
-    <div id="popup" class="popup">Mensaje enviado con éxito</div>
+      <div id="popup" class="popup">Mensaje enviado con éxito</div>
     <% } %>
 
     <header>
@@ -15,78 +15,68 @@
 
     <h1><%= profesor.nombre %></h1>
 
-    <div class="info-section">
-      <h2>Información del Profesor</h2>
-      <p><strong>Email:</strong> <%= profesor.email || 'No disponible' %></p>
+    <div class="profesor-detalle">
 
-      <% if (profesor.lastLocation) { %>
-      <p>
-        <strong>Última ubicación registrada:</strong>
-        <% if (profesor.lastLocation.isentry) { %>
-        <span class="status-entry"
-          >Aula "<%= profesor.lastLocation.aula_nombre %>"</span
-        >
+      <div class="info-section">
+        <h2>Información del Profesor</h2>
+        <p><strong>Email:</strong> <%= profesor.email || 'No disponible' %></p>
+
+        <% if (profesor.lastLocation) { %>
+          <p>
+            <strong>Última ubicación registrada:</strong>
+            <% if (profesor.lastLocation.isentry) { %>
+              <span class="status-entry">Aula "<%= profesor.lastLocation.aula_nombre %>"</span>
+            <% } else { %>
+              <span class="status-exit">Profesor no disponible</span>
+            <% } %>
+            desde <%= new Date(profesor.lastLocation.timestamp).toLocaleString('es-AR') %>
+          </p>
         <% } else { %>
-        <span class="status-exit">Profesor no disponible</span>
-        <% } %> desde <%= new
-        Date(profesor.lastLocation.timestamp).toLocaleString('es-AR') %>
-      </p>
-      <% } else { %>
-      <p>
-        <strong>Última ubicación registrada:</strong> No hay registros de aula.
-      </p>
-      <% } %>
-    </div>
+          <p><strong>Última ubicación registrada:</strong> No hay registros de aula.</p>
+        <% } %>
+      </div>
 
-    <div class="info-section">
-      <h2>Materias Dictadas</h2>
-      <% if (profesor.materias && profesor.materias.length > 0) { %>
-      <ul>
-        <% profesor.materias.forEach((materia) => { %>
-        <li>
-          <%= materia.nombre %>
-        </li>
-        <% }); %>
-      </ul>
-      <% } else { %>
-      <p><%= profesor.nombre %> no tiene materias asignadas en el sistema.</p>
-      <% } %>
-    </div>
+      <div class="info-section">
+        <h2>Materias Dictadas</h2>
+        <% if (profesor.materias && profesor.materias.length > 0) { %>
+          <ul>
+            <% profesor.materias.forEach((materia) => { %>
+              <li><%= materia.nombre %></li>
+            <% }); %>
+          </ul>
+        <% } else { %>
+          <p><%= profesor.nombre %> no tiene materias asignadas en el sistema.</p>
+        <% } %>
+      </div>
 
-    <% if (profesor.lastLocation && profesor.lastLocation.isentry &&
-    profesor.lastLocation.esp32_id) { %>
-    <div class="contact-container">
-      <h2>Contactar a <%= profesor.nombre %></h2>
-      <form
-        action="/profesor/<%= profesor.profesor_id %>/preguntar"
-        method="POST"
-      >
-        <input
-          type="hidden"
-          name="esp32Id"
-          value="<%= profesor.lastLocation.esp32_id %>"
-        />
-        <div class="input-group">
-          <label for="alumno">Tu Nombre</label>
-          <input
-            id="alumno"
-            name="alumno"
-            maxlength="13"
-            placeholder="Ingresa tu nombre"
-            required
-          />
-          <span id="char-count" class="char-count">
-            Caracteres restantes: <span id="char-count-value">13</span>
-          </span>
+      <% if (profesor.lastLocation && profesor.lastLocation.isentry && profesor.lastLocation.esp32_id) { %>
+        <div class="contact-container">
+          <h2>Contactar a <%= profesor.nombre %></h2>
+          <form action="/profesor/<%= profesor.profesor_id %>/preguntar" method="POST">
+            <input type="hidden" name="esp32Id" value="<%= profesor.lastLocation.esp32_id %>" />
+            <div class="input-group">
+              <label for="alumno">Tu Nombre</label>
+              <input
+                id="alumno"
+                name="alumno"
+                maxlength="13"
+                placeholder="Ingresa tu nombre"
+                required
+              />
+              <span id="char-count" class="char-count">
+                Caracteres restantes: <span id="char-count-value">13</span>
+              </span>
+            </div>
+            <button type="submit">Registrar Consulta</button>
+          </form>
         </div>
-        <button type="submit">Registrar Consulta</button>
-      </form>
+      <% } else { %>
+        <p class="disabled-form">
+          El profesor no está disponible para recibir mensajes en este momento.
+        </p>
+      <% } %>
+
     </div>
-    <% } else { %>
-    <p class="disabled-form">
-      El profesor no está disponible para recibir mensajes en este momento.
-    </p>
-    <% } %>
 
     <script>
       const textarea = document.getElementById("alumno");
@@ -108,12 +98,9 @@
       }, 3000);
     </script>
 
-        <!-- MQTT.js desde CDN -->
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-
     <script>
-      const client = mqtt.connect('ws://54.80.230.215:9001');  // asegurate que ese puerto esté habilitado en tu broker
-
+      const client = mqtt.connect('ws://54.80.230.215:9001');
       client.on('connect', () => {
         console.log('Conectado a MQTT desde frontend');
         client.subscribe('profesores/estado');
@@ -122,9 +109,8 @@
       client.on('message', (topic, message) => {
         const data = JSON.parse(message.toString());
         console.log('Estado cambiado:', data);
-        location.reload();  // recarga la página ante cualquier evento
+        location.reload();
       });
     </script>
-
   </body>
 </html>
