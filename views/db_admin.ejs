@@ -378,7 +378,6 @@
               <% }); %> <% } else { %>
               <tr>
                 <td colspan="5">No hay profesores registrados.</td>
-                <!-- Actualizado de 4 a 5 columnas -->
               </tr>
               <% } %>
             </tbody>
@@ -419,7 +418,7 @@
                 <th>Nombre</th>
                 <th>ESP32 ID</th>
                 <th>ID Aula</th>
-                <th>Acciones</th>
+                <th>Accion</tbody>es</th>
               </tr>
             </thead>
             <tbody id="tbody-aulas">
@@ -435,6 +434,10 @@
                     </td>
                   </tr>
                 <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="3">No hay aulas registradas.</td>
+                </tr>
               <% } %>
             </tbody>
           </table>
@@ -480,6 +483,10 @@
                     </td>
                   </tr>
                 <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="3">No hay materias registradas.</td>
+                </tr>
               <% } %>
             </tbody>
           </table>
@@ -528,17 +535,32 @@
               <tr>
                 <th>Profesor (ID)</th>
                 <th>Materia (ID)</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody id="tbody-asignaciones">
-              <tr>
-                <td colspan="2">
-                  Datos no cargados. Se requiere actualizar backend y/o usar
-                  JS/AJAX.
-                </td>
-              </tr>
+              <% if (asignaciones && asignaciones.length > 0) { %>
+                <% asignaciones.forEach(asignacion => { %>
+                  <tr>
+                    <td><%= asignacion.profesor_nombre %> (ID: <%= asignacion.profesor_id %>)</td>
+                    <td><%= asignacion.materia_nombre %> (ID: <%= asignacion.materia_id %>)</td>
+                    <td>
+                      <button class="btn-eliminar eliminar-asignacion"
+                        data-profesor-id="<%= asignacion.profesor_id %>"
+                        data-materia-id="<%= asignacion.materia_id %>">
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="3">No hay asignaciones registradas.</td>
+                </tr>
+              <% } %>
             </tbody>
           </table>
+
         </div>
       </div>
     </div>
@@ -562,5 +584,8 @@
       });
     </script>
     <script src="/js/profesores.js"></script>
+    <script src="/js/aulas.js"></script>
+    <script src="/js/materias.js"></script>
+    <script src="/js/asignaciones.js"></script>
   </body>
 </html>

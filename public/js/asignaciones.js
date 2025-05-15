@@ -58,7 +58,9 @@ botonesEliminarTabla.forEach(btn => {
   btn.addEventListener('click', async function(e) {
     e.preventDefault(); // Prevenir comportamiento por defecto
     
-    const asignacionId = this.getAttribute('data-id'); 
+    const profesorId = this.getAttribute('data-profesor-id');
+    const materiaId = this.getAttribute('data-materia-id');
+
     
     if (!asignacionId) {
       alert("Error: No se pudo obtener el id de la asignación");
@@ -71,8 +73,15 @@ botonesEliminarTabla.forEach(btn => {
     }
     
     try {
-      const response = await fetch(`/admin/asignaciones/eliminar/${asignacionId}`, {
+      const response = await fetch(`/admin/asignaciones/eliminar`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          profesor_id: profesorId,
+          materia_id: materiaId
+        }),
       });
 
       if (!response.ok) {
