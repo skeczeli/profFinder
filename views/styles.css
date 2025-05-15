@@ -152,12 +152,31 @@ body {
   padding: 20px;
 }
 
-.materia-box {
+.materias-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.materia-card {
   background-color: white;
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  padding: 24px 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 14px 20px;
+  width: fit-content;
 }
+
+.materia-card a {
+  color: #4d8ad5;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.materia-card a:hover {
+  color: #3a75c4;
+}
+
 
 .contact-container {
   background-color: white;

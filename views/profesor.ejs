@@ -36,20 +36,21 @@
         <% } %>
       </div>
 
-      <div class="info-section materia-box">
+      <div class="info-section">
         <h2>Materias Dictadas</h2>
         <% if (profesor.materias && profesor.materias.length > 0) { %>
-          <ul>
+          <div class="materias-lista">
             <% profesor.materias.forEach((materia) => { %>
-              <li>
+              <div class="materia-card">
                 <a href="/materia/<%= materia.materia_id %>"><%= materia.nombre %></a>
-              </li>
+              </div>
             <% }); %>
-          </ul>
+          </div>
         <% } else { %>
           <p><%= profesor.nombre %> no tiene materias asignadas en el sistema.</p>
         <% } %>
       </div>
+
 
       <% if (profesor.lastLocation && profesor.lastLocation.isentry && profesor.lastLocation.esp32_id) { %>
         <div class="contact-container">
