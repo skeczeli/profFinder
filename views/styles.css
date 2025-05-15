@@ -97,14 +97,23 @@ a:hover {
   align-self: flex-start;
 }
 
-.profesor-detalle {
-  width: 100%;
-  max-width: 800px;
+.profesor-item {
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 32px;
+  justify-content: space-between;
+  align-items: center;
 }
+
+.profesor-item a {
+  flex-grow: 1;
+}
+
+.profesor-email {
+  font-size: 0.95rem;
+  color: #555;
+  margin-left: 16px;
+  white-space: nowrap;
+}
+
 
 
 #overview {

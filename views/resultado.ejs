@@ -20,12 +20,12 @@
       <% if (profesores && profesores.length > 0) { %>
       <ul>
         <% profesores.forEach(profesor => { %>
-        <li>
-          <a href="/profesor/<%= profesor.profesor_id %>">
-            <%= profesor.nombre %>
-          </a>
-          <% if (profesor.email) { %> (<%= profesor.email %>) <% } %>
-        </li>
+          <li class="profesor-item">
+            <a href="/profesor/<%= profesor.profesor_id %>"><%= profesor.nombre %></a>
+            <% if (profesor.email) { %>
+              <span class="profesor-email"><%= profesor.email %></span>
+            <% } %>
+          </li>
         <% }); %>
       </ul>
       <% } else if (!error) { %> <%# Solo muestra "no encontrado" si no hubo un
