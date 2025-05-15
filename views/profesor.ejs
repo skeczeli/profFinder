@@ -110,5 +110,24 @@
         if (popup) popup.remove();
       }, 3000);
     </script>
+
+        <!-- MQTT.js desde CDN -->
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+    <script>
+      const client = mqtt.connect('ws://54.80.230.215:9001');  // asegurate que ese puerto esté habilitado en tu broker
+
+      client.on('connect', () => {
+        console.log('Conectado a MQTT desde frontend');
+        client.subscribe('profesores/estado');
+      });
+
+      client.on('message', (topic, message) => {
+        const data = JSON.parse(message.toString());
+        console.log('Estado cambiado:', data);
+        location.reload();  // recarga la página ante cualquier evento
+      });
+    </script>
+
   </body>
 </html>
