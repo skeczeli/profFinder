@@ -1,36 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Materia: <%= materia.nombre %></title>
     <link rel="stylesheet" href="/styles.css" />
+    <style>
+      /* Estilos específicos para esta página */
+      .status-indicator {
+        height: 10px;
+        width: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+      }
+
+      .status-active {
+        background-color: green;
+      }
+
+      .status-inactive {
+        background-color: red;
+      }
+
+      .profesores-lista {
+        width: 100%;
+        max-width: 700px;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        font-style: italic;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+    </style>
   </head>
   <body>
-    <header>
-      <div id="inicio"><a href="/">Inicio</a></div>
-    </header>
+    <div id="inicio">
+      <a href="/">Inicio</a>
+    </div>
 
     <h1><%= materia.nombre %></h1>
 
     <div class="info-section">
       <h2>Profesores que dictan esta materia</h2>
-      <% if (materia.profesores.length > 0) { %>
-      <ul>
+
+      <% if (materia.profesores && materia.profesores.length > 0) { %>
+      <ul class="profesores-lista">
         <% materia.profesores.forEach((profesor) => { %>
         <li>
-          <% if (profesor.isentry === true) { %>
-          <span style="color: green">●</span>
-          <% } else { %>
-          <span style="color: red">●</span>
-          <% } %>
+          <span
+            class="status-indicator <%= profesor.isentry === true ? 'status-active' : 'status-inactive' %>"
+          ></span>
           <a href="/profesor/<%= profesor.profesor_id %>">
             <%= profesor.nombre %>
           </a>
         </li>
-
         <% }); %>
       </ul>
       <% } else { %>
-      <p>No hay profesores asignados a esta materia.</p>
+      <div class="empty-state">
+        <p>No hay profesores asignados a esta materia.</p>
+      </div>
       <% } %>
     </div>
   </body>
