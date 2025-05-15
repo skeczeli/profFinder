@@ -62,8 +62,8 @@ botonesEliminarTabla.forEach(btn => {
     const materiaId = this.getAttribute('data-materia-id');
 
     
-    if (!asignacionId) {
-      alert("Error: No se pudo obtener el id de la asignación");
+    if (!profesorId || !materiaId) {
+      alert("Error: No se pudo obtener el ID del profesor o materia");
       return;
     }
     
