@@ -152,6 +152,13 @@ body {
   padding: 20px;
 }
 
+.materia-box {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 24px 32px;
+}
+
 .contact-container {
   background-color: white;
   border-radius: 12px;
@@ -160,7 +167,7 @@ body {
   width: 100%;
   max-width: 540px; /* Aumentado el ancho máximo */
   transition: all 0.3s ease;
-  margin: 0 20px; /* Añadir margen horizontal */
+  margin: 0 auto; /* Añadir margen horizontal */
 }
 
 .contact-container:hover {
