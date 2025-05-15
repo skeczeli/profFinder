@@ -13,6 +13,9 @@
         border-radius: 50%;
         display: inline-block;
         margin-right: 8px;
+        vertical-align: middle;
+        position: relative;
+        top: -1px;
       }
 
       .status-active {
@@ -23,9 +26,30 @@
         background-color: red;
       }
 
-      .profesores-lista {
+      /* Aseguramos que el contenido esté centrado como en el CSS original */
+      .container {
         width: 100%;
+        max-width: 800px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      /* Estilo para que la lista tenga el ancho correcto */
+      ul {
         max-width: 700px;
+        width: 100%;
+      }
+
+      li {
+        display: flex;
+        align-items: center;
+      }
+
+      /* Alineamos correctamente el contenido dentro de cada elemento li */
+      li a {
+        flex-grow: 1;
+        padding: 5px 0;
       }
 
       .empty-state {
@@ -36,6 +60,8 @@
         background-color: white;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        width: 100%;
+        max-width: 700px;
       }
     </style>
   </head>
@@ -46,27 +72,29 @@
 
     <h1><%= materia.nombre %></h1>
 
-    <div class="info-section">
-      <h2>Profesores que dictan esta materia</h2>
+    <div class="container">
+      <div class="info-section">
+        <h2>Profesores que dictan esta materia</h2>
 
-      <% if (materia.profesores && materia.profesores.length > 0) { %>
-      <ul class="profesores-lista">
-        <% materia.profesores.forEach((profesor) => { %>
-        <li>
-          <span
-            class="status-indicator <%= profesor.isentry === true ? 'status-active' : 'status-inactive' %>"
-          ></span>
-          <a href="/profesor/<%= profesor.profesor_id %>">
-            <%= profesor.nombre %>
-          </a>
-        </li>
-        <% }); %>
-      </ul>
-      <% } else { %>
-      <div class="empty-state">
-        <p>No hay profesores asignados a esta materia.</p>
+        <% if (materia.profesores && materia.profesores.length > 0) { %>
+        <ul>
+          <% materia.profesores.forEach((profesor) => { %>
+          <li>
+            <span
+              class="status-indicator <%= profesor.isentry === true ? 'status-active' : 'status-inactive' %>"
+            ></span>
+            <a href="/profesor/<%= profesor.profesor_id %>">
+              <%= profesor.nombre %>
+            </a>
+          </li>
+          <% }); %>
+        </ul>
+        <% } else { %>
+        <div class="empty-state">
+          <p>No hay profesores asignados a esta materia.</p>
+        </div>
+        <% } %>
       </div>
-      <% } %>
     </div>
   </body>
 </html>
