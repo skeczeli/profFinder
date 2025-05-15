@@ -17,9 +17,7 @@
 
     <div class="info-section">
       <h2>Información del Profesor</h2>
-      <p><strong>ID:</strong> <%= profesor.profesor_id %></p>
       <p><strong>Email:</strong> <%= profesor.email || 'No disponible' %></p>
-      <p><strong>Tarjeta ID:</strong> <%= profesor.tarjeta_id %></p>
 
       <% if (profesor.lastLocation) { %>
       <p>
@@ -47,7 +45,6 @@
         <% profesor.materias.forEach((materia) => { %>
         <li>
           <%= materia.nombre %>
-          (ID: <%= materia.materia_id %>)
         </li>
         <% }); %>
       </ul>

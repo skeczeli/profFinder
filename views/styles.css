@@ -89,6 +89,15 @@ a:hover {
   display: block;
 }
 
+.info-section {
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 40px;
+  text-align: left;
+  align-self: flex-start;
+}
+
+
 #overview {
   width: 80%;
   max-width: 800px;
