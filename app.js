@@ -197,58 +197,52 @@ app.post("/profesor/:id/preguntar", (req, res) => {
   res.redirect(`/profesor/${req.params.id}?enviado=1`);
 });
 
-// IMPLEMENTAR
-// Ruta para ver detalles/estado de un Aula específica
-app.get("/aula/:id", async (req, res) => {
-  const aulaId = req.params.id;
+// Ruta para ver detalles de una Materia específica
+app.get("/materia/:id", async (req, res) => {
+  const materiaId = parseInt(req.params.id, 10);
 
-  // Consulta para obtener datos del aula
-  const queryAula = `SELECT aula_id, nombre, esp32_id FROM aulas WHERE aula_id = $1;`;
-  // Consulta para obtener los últimos N eventos del aula
-  const queryEvents = `
-    SELECT pa.timestamp, pa.isentry, p.profesor_id, p.nombre as profesor_nombre
-    FROM profesor_aula pa
-    JOIN profesores p ON pa.profesor_id = p.profesor_id
-    WHERE pa.aula_id = $1
-    ORDER BY pa.timestamp DESC
-    LIMIT 20; -- Muestra los últimos 20 eventos
+  const queryMateria = `
+    SELECT materia_id, nombre
+    FROM materias
+    WHERE materia_id = $1;
   `;
 
+  const queryProfesores = `
+  SELECT p.profesor_id, p.nombre,
+    (SELECT i.evento = 'entrada'
+     FROM ingresos i
+     WHERE i.profesor_id = p.profesor_id
+     ORDER BY i.fecha DESC
+     LIMIT 1) AS isentry
+  FROM profesores p
+  JOIN profesor_materia pm ON p.profesor_id = pm.profesor_id
+  WHERE pm.materia_id = $1
+  ORDER BY p.nombre;
+`;
+
   try {
-    const [aulaResult, eventsResult] = await Promise.all([
-      db.query(queryAula, [aulaId]),
-      db.queryAll(queryEvents, [aulaId]),
+    const [materiaRes, profsRes] = await Promise.all([
+      db.query(queryMateria, [materiaId]),
+      db.queryAll(queryProfesores, [materiaId]),
     ]);
 
-    if (aulaResult.rows.length === 0) {
-      return res.status(404).send("Aula no encontrada.");
+    if (materiaRes.rows.length === 0) {
+      return res.status(404).render("error", {
+        message: "Materia no encontrada",
+        error: { status: 404 },
+      });
     }
 
-    const aulaData = aulaResult.rows[0];
-    aulaData.events = eventsResult; // Array de {timestamp, isentry, profesor_id, profesor_nombre}
+    const materia = materiaRes.rows[0];
+    materia.profesores = profsRes;
 
-    // Lógica adicional: Determinar quién está *actualmente* dentro (más complejo)
-    // Podrías procesar aulaData.events aquí para encontrar el último estado de cada profesor en esta aula
-    let profesoresDentro = new Map();
-    aulaData.events.forEach((event) => {
-      if (!profesoresDentro.has(event.profesor_id)) {
-        // Solo nos importa el evento más reciente por profesor
-        profesoresDentro.set(event.profesor_id, {
-          nombre: event.profesor_nombre,
-          isentry: event.isentry,
-          timestamp: event.timestamp,
-        });
-      }
-    });
-    // Filtrar solo los que están dentro
-    aulaData.profesoresActuales = Array.from(profesoresDentro.values()).filter(
-      (p) => p.isentry
-    );
-
-    res.render("aula_detalle", { aula: aulaData }); // Necesitas crear 'aula_detalle.ejs'
+    res.render("materia", { materia });
   } catch (err) {
-    console.error(`Error al cargar datos del aula ${aulaId}:`, err);
-    res.status(500).send("Error al cargar los datos del aula.");
+    console.error("Error al cargar datos de la materia:", err);
+    res.status(500).render("error", {
+      message: "Error al cargar los datos de la materia",
+      error: { status: 500, stack: err.stack },
+    });
   }
 });
 
@@ -647,7 +641,10 @@ app.post(
       });
     }
 
-    nombre = nombre.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+    nombre = nombre
+      .trim()
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase());
 
     try {
       // Verificar si ya existe una materia con ese nombre

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Materia: <%= materia.nombre %></title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <div id="inicio"><a href="/">Inicio</a></div>
+    </header>
+
+    <h1><%= materia.nombre %></h1>
+
+    <div class="info-section">
+      <h2>Profesores que dictan esta materia</h2>
+      <% if (materia.profesores.length > 0) { %>
+      <ul>
+        <% materia.profesores.forEach((profesor) => { %>
+        <li>
+          <% if (profesor.isentry === true) { %>
+          <span style="color: green">●</span>
+          <% } else { %>
+          <span style="color: red">●</span>
+          <% } %>
+          <a href="/profesor/<%= profesor.profesor_id %>">
+            <%= profesor.nombre %>
+          </a>
+        </li>
+
+        <% }); %>
+      </ul>
+      <% } else { %>
+      <p>No hay profesores asignados a esta materia.</p>
+      <% } %>
+    </div>
+  </body>
+</html>
