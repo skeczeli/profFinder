@@ -65,6 +65,7 @@
     </div>
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <script>
+      // ARREGLAR LA LUCECITA CUANDO ABRO POR PRIMERA VEZ APP.JS
       const client = mqtt.connect("ws://54.80.230.215:9001");
 
       client.on("connect", () => {
@@ -83,10 +84,14 @@
         const dot = li.querySelector(".status-indicator");
         if (!dot) return;
 
+        // Asegura que siempre actualice correctamente
         dot.classList.remove("status-active", "status-inactive");
-        dot.classList.add(
-          data.evento === "entrada" ? "status-active" : "status-inactive"
-        );
+
+        if (data.evento === "entrada") {
+          dot.classList.add("status-active");
+        } else if (data.evento === "salida") {
+          dot.classList.add("status-inactive");
+        }
       });
     </script>
   </body>
