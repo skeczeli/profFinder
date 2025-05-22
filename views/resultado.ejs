@@ -84,14 +84,10 @@
         const dot = li.querySelector(".status-indicator");
         if (!dot) return;
 
-        // Asegura que siempre actualice correctamente
         dot.classList.remove("status-active", "status-inactive");
-
-        if (data.evento === "entrada") {
-          dot.classList.add("status-active");
-        } else if (data.evento === "salida") {
-          dot.classList.add("status-inactive");
-        }
+        dot.classList.add(
+          data.evento === "entrada" ? "status-active" : "status-inactive"
+        );
       });
     </script>
   </body>

@@ -77,10 +77,18 @@ app.get("/buscar", async (req, res) => {
 
   // Consulta para buscar Profesores
   const queryProfesores = `
-    SELECT profesor_id, nombre, email
-    FROM profesores
-    WHERE nombre ILIKE $1 -- Usar ILIKE para case-insensitive
-    ORDER BY nombre ASC;
+      SELECT p.profesor_id, p.nombre, p.email,
+       (i.evento = 'entrada') AS isentry
+      FROM profesores p
+      LEFT JOIN LATERAL (
+        SELECT evento
+        FROM ingresos
+        WHERE profesor_id = p.profesor_id
+        ORDER BY fecha DESC
+        LIMIT 1
+      ) i ON true
+      WHERE p.nombre ILIKE $1
+      ORDER BY p.nombre ASC;
   `;
 
   // Consulta para buscar Materias
