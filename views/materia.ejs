@@ -306,16 +306,28 @@
 
       .reload-indicator {
         position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        bottom: 20px;
+        right: 20px;
         background: rgba(77, 138, 213, 0.9);
         color: white;
-        padding: 16px 24px;
-        border-radius: 12px;
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
         font-weight: 600;
         z-index: 1000;
         display: none;
+        animation: slideInUp 0.3s ease-out;
+      }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
     </style>
   </head>
@@ -325,7 +337,7 @@
     </div>
 
     <div class="reload-indicator" id="reloadIndicator">
-      Actualizando información...
+      Actualizando estados...
     </div>
 
     <div class="main-container">
@@ -370,19 +382,12 @@
       function showReloadIndicator() {
         if (reloadIndicator) {
           reloadIndicator.style.display = 'block';
+          setTimeout(() => {
+            reloadIndicator.style.display = 'none';
+          }, 2000);
         }
         if (profesoresList) {
           profesoresList.classList.add('loading');
-        }
-      }
-
-      // Función para ocultar indicador de recarga
-      function hideReloadIndicator() {
-        if (reloadIndicator) {
-          reloadIndicator.style.display = 'none';
-        }
-        if (profesoresList) {
-          profesoresList.classList.remove('loading');
         }
       }
 

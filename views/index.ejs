@@ -13,7 +13,7 @@
 
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
         min-height: 100vh;
         display: flex;
         flex-direction: column;
@@ -153,6 +153,39 @@
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
       }
 
+      /* Características destacadas */
+      .features {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 20px;
+      }
+
+      .feature {
+        text-align: center;
+        opacity: 0.8;
+      }
+
+      .feature-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #4d8ad5, #667eea);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 8px;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .feature-text {
+        font-size: 0.85rem;
+        color: #64748b;
+        font-weight: 500;
+      }
+
       /* Animaciones */
       .main-container {
         animation: slideUp 0.8s ease-out;
@@ -179,6 +212,8 @@
         h1 {
           font-size: 2.8rem;
         }
+
+
 
         .admin-button {
           top: 20px;
