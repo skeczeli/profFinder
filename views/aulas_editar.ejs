@@ -1,4 +1,3 @@
-<!-- views/aulas_editar.ejs -->
 <!DOCTYPE html>
 <html lang="es">
   <head>
@@ -6,200 +5,279 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Editar Aula | Sistema de Aulas</title>
     <style>
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f8f9fa;
+      * {
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
+        padding: 20px;
       }
 
+      /* Elementos decorativos de fondo */
+      body::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: float 20s ease-in-out infinite;
+        z-index: 1;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+      }
+
+      /* Contenedor principal */
       .container {
         width: 100%;
         max-width: 450px;
-        margin: 0 auto;
         position: relative;
+        z-index: 10;
       }
 
+      /* Botones de navegación */
       .home-button {
         position: fixed;
-        top: 20px;
-        left: 20px;
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #4d8ad5;
+        top: 30px;
+        left: 30px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
         color: white;
-        border-radius: 4px;
-        transition: all 0.2s ease;
-        text-decoration: none;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-size: 0.95rem;
         font-weight: 600;
-        z-index: 1000;
-        font-size: 0.9rem;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        z-index: 20;
       }
 
       .home-button:hover {
-        background-color: #3a75c4;
+        background: rgba(255, 255, 255, 0.3);
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
       }
 
       .logout-button {
         position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 1000;
+        top: 30px;
+        right: 30px;
+        z-index: 20;
       }
 
       .logout-button button {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #e53e3e;
+        background: rgba(229, 62, 62, 0.2);
+        backdrop-filter: blur(10px);
         color: white;
-        border-radius: 4px;
-        transition: all 0.2s ease;
-        text-decoration: none;
+        border: 1px solid rgba(229, 62, 62, 0.3);
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-size: 0.95rem;
         font-weight: 600;
         cursor: pointer;
-        font-size: 0.9rem;
-        border: none;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
       }
 
       .logout-button button:hover {
-        background-color: #c53030;
+        background: rgba(229, 62, 62, 0.3);
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 8px 25px rgba(229, 62, 62, 0.2);
       }
 
+      /* Tarjeta principal */
       .card {
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
         overflow: hidden;
-        width: 100%;
-        max-width: 380px;
-        margin: 0 auto;
-        transform: translateY(-15px);  /* Ligero ajuste hacia arriba */
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        animation: slideUp 0.8s ease-out;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .card-header {
-        background-color: #4d8ad5;
+        background: linear-gradient(135deg, #4d8ad5, #667eea);
         color: white;
-        padding: 1.2rem 0;
+        padding: 24px 0;
         text-align: center;
       }
 
       .card-header h2 {
         margin: 0;
-        font-size: 1.5rem;
-        font-weight: 600;
+        font-size: 1.8rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
       }
 
       .card-body {
-        padding: 1.8rem;
+        padding: 40px 35px;
       }
 
+      /* Mensajes de error */
       .alert-danger {
-        background-color: #f8d7da;
-        color: #721c24;
-        padding: 0.75rem 1rem;
-        border-radius: 4px;
-        margin-bottom: 1.2rem;
-        border: 1px solid #f5c6cb;
-        font-size: 0.9rem;
+        background: rgba(244, 67, 54, 0.1);
+        color: #d32f2f;
+        border: 1px solid rgba(244, 67, 54, 0.2);
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin-bottom: 24px;
+        font-weight: 500;
+        animation: shake 0.5s ease-in-out;
       }
 
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+      }
+
+      /* Formulario */
       .form-group {
-        margin-bottom: 1.2rem;
+        margin-bottom: 24px;
       }
 
       .form-label {
         display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: #333;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #4a5568;
         font-size: 0.95rem;
       }
 
       .form-control {
         width: 100%;
-        padding: 0.7rem;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        box-sizing: border-box;
+        padding: 16px 20px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
         font-size: 1rem;
-        transition: border-color 0.2s ease;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+        outline: none;
       }
 
       .form-control:focus {
         border-color: #4d8ad5;
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(77, 138, 213, 0.15);
+        box-shadow: 0 0 0 4px rgba(77, 138, 213, 0.1);
+        background: white;
+        transform: translateY(-2px);
       }
 
+      /* Botones */
       .btn-row {
         display: flex;
-        justify-content: space-between;
-        margin-top: 1.8rem;
+        gap: 16px;
+        margin-top: 32px;
       }
 
       .btn {
-        padding: 0.7rem 1.2rem;
+        flex: 1;
+        padding: 16px 24px;
         border: none;
-        border-radius: 4px;
+        border-radius: 12px;
         cursor: pointer;
-        font-size: 0.95rem;
+        font-size: 1rem;
         text-decoration: none;
         display: inline-block;
-        transition: all 0.2s ease;
-        font-weight: 500;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        text-align: center;
       }
 
       .btn-secondary {
-        background-color: #6c757d;
+        background: linear-gradient(135deg, #6c757d, #868e96);
         color: white;
       }
 
       .btn-primary {
-        background-color: #4d8ad5;
+        background: linear-gradient(135deg, #4d8ad5, #667eea);
         color: white;
       }
 
       .btn-secondary:hover {
-        background-color: #5a6268;
         transform: translateY(-2px);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
       }
 
       .btn-primary:hover {
-        background-color: #3a75c4;
         transform: translateY(-2px);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 25px rgba(77, 138, 213, 0.3);
       }
 
-      @media (max-width: 576px) {
-        .card {
-          margin: 1rem;
-          max-width: 100%;
-        }
-        
-        .btn-row {
-          flex-direction: column;
-          gap: 1rem;
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      /* Responsivo */
+      @media (max-width: 768px) {
+        .container {
+          margin: 0 15px;
         }
 
-        .btn {
-          width: 100%;
-          text-align: center;
+        .card-body {
+          padding: 30px 25px;
         }
-        
-        .home-button, .logout-button button {
-          padding: 8px 16px;
-          font-size: 0.85rem;
+
+        .home-button,
+        .logout-button {
+          top: 20px;
+        }
+
+        .home-button {
+          left: 20px;
+          padding: 10px 18px;
+          font-size: 0.9rem;
+        }
+
+        .logout-button {
+          right: 20px;
+        }
+
+        .logout-button button {
+          padding: 10px 18px;
+          font-size: 0.9rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .btn-row {
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .card-header h2 {
+          font-size: 1.6rem;
+        }
+
+        .card-body {
+          padding: 25px 20px;
         }
       }
     </style>
@@ -212,47 +290,68 @@
       </button>
     </form>
 
-    <div class="card">
-      <div class="card-header">
-        <h2>Editar Aula</h2>
-      </div>
-      <div class="card-body">
-        <% if (error) { %>
-        <div class="alert-danger"><%= error %></div>
-        <% } %>
+    <div class="container">
+      <div class="card">
+        <div class="card-header">
+          <h2>Editar Aula</h2>
+        </div>
+        <div class="card-body">
+          <% if (error) { %>
+          <div class="alert-danger"><%= error %></div>
+          <% } %>
 
-        <form action="/admin/aula/actualizar/<%= aula.aula_id %>" method="POST">
-          <div class="form-group">
-            <label for="nombre" class="form-label">Nombre del aula:</label>
-            <input
-              type="text"
-              class="form-control"
-              id="nombre"
-              name="nombre"
-              value="<%= aula.nombre %>"
-              required
-            />
-          </div>
+          <form action="/admin/aula/actualizar/<%= aula.aula_id %>" method="POST">
+            <div class="form-group">
+              <label for="nombre" class="form-label">Nombre del aula</label>
+              <input
+                type="text"
+                class="form-control"
+                id="nombre"
+                name="nombre"
+                value="<%= aula.nombre %>"
+                required
+                placeholder="Ej: Aula 101"
+              />
+            </div>
 
-          <div class="form-group">
-            <label for="esp32_id" class="form-label">ID ESP32:</label>
-            <input
-              type="text"
-              class="form-control"
-              id="esp32_id"
-              name="esp32_id"
-              value="<%= aula.esp32_id || '' %>"
-            />
-          </div>
+            <div class="form-group">
+              <label for="esp32_id" class="form-label">ID ESP32</label>
+              <input
+                type="text"
+                class="form-control"
+                id="esp32_id"
+                name="esp32_id"
+                value="<%= aula.esp32_id || '' %>"
+                placeholder="Ej: ESP32_001"
+              />
+            </div>
 
-          <div class="btn-row">
-            <a href="/db_admin" class="btn btn-secondary">Cancelar</a>
-            <button type="submit" class="btn btn-primary">
-              Guardar cambios
-            </button>
-          </div>
-        </form>
+            <div class="btn-row">
+              <a href="/db_admin" class="btn btn-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-primary">
+                Guardar cambios
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
+
+    <script>
+      // Animación suave para el focus de los inputs
+      const inputs = document.querySelectorAll('.form-control');
+      inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+          this.parentElement.style.transform = 'scale(1.02)';
+        });
+
+        input.addEventListener('blur', function() {
+          this.parentElement.style.transform = 'scale(1)';
+        });
+      });
+
+      // Focus automático en el primer input
+      document.getElementById('nombre').focus();
+    </script>
   </body>
 </html>

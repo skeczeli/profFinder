@@ -1,70 +1,471 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Resultados de Búsqueda: <%= searchTerm %></title>
-    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        position: relative;
+        padding: 20px;
+      }
+
+      /* Elementos decorativos de fondo */
+      body::before {
+        content: '';
+        position: fixed;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: float 20s ease-in-out infinite;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+      }
+
+      /* Botón de inicio */
+      #inicio {
+        position: fixed;
+        top: 30px;
+        left: 30px;
+        z-index: 100;
+      }
+
+      #inicio a {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      #inicio a:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Contenedor principal */
+      .main-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 10;
+        padding-top: 80px;
+      }
+
+      /* Título principal */
+      h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: white;
+        text-align: center;
+        margin-bottom: 50px;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        letter-spacing: -1px;
+        animation: slideDown 0.8s ease-out;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Mensajes de error */
+      .error-message {
+        background: rgba(244, 67, 54, 0.9);
+        color: white;
+        border-radius: 12px;
+        padding: 16px 24px;
+        text-align: center;
+        margin: 0 auto 30px;
+        max-width: 600px;
+        font-weight: 500;
+        box-shadow: 0 8px 25px rgba(244, 67, 54, 0.3);
+        animation: shake 0.5s ease-in-out;
+      }
+
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+      }
+
+      /* Secciones de resultados */
+      .results-section {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        padding: 35px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        animation: slideUp 0.8s ease-out;
+        transition: all 0.3s ease;
+      }
+
+      .results-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h2 {
+        color: #1a3b5d;
+        font-weight: 700;
+        margin-bottom: 24px;
+        font-size: 1.8rem;
+        letter-spacing: -0.5px;
+        border-bottom: 3px solid #4d8ad5;
+        padding-bottom: 8px;
+      }
+
+      /* Listas */
+      ul {
+        list-style: none;
+        width: 100%;
+      }
+
+      li {
+        display: flex;
+        align-items: center;
+        margin: 16px 0;
+        padding: 16px 20px;
+        background: #f8fafc;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+      }
+
+      li:hover {
+        background: white;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+        border-color: rgba(77, 138, 213, 0.2);
+      }
+
+      /* Indicador de estado para profesores */
+      .status-indicator {
+        height: 12px;
+        width: 12px;
+        border-radius: 50%;
+        margin-right: 16px;
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      .status-active {
+        background: linear-gradient(135deg, #48bb78, #38a169);
+        box-shadow: 0 0 10px rgba(72, 187, 120, 0.4);
+        animation: pulse-green 2s infinite;
+      }
+
+      .status-inactive {
+        background: linear-gradient(135deg, #f56565, #e53e3e);
+        box-shadow: 0 0 10px rgba(245, 101, 101, 0.4);
+      }
+
+      @keyframes pulse-green {
+        0%, 100% { 
+          transform: scale(1); 
+          box-shadow: 0 0 10px rgba(72, 187, 120, 0.4);
+        }
+        50% { 
+          transform: scale(1.1); 
+          box-shadow: 0 0 15px rgba(72, 187, 120, 0.6);
+        }
+      }
+
+      /* Enlaces */
+      li a {
+        flex-grow: 1;
+        color: #4d8ad5;
+        font-weight: 600;
+        font-size: 1.1rem;
+        text-decoration: none;
+        padding: 8px 0;
+        transition: all 0.2s ease;
+      }
+
+      li a:hover {
+        color: #3a75c4;
+        text-shadow: 0 2px 4px rgba(77, 138, 213, 0.2);
+      }
+
+      /* Email de profesores */
+      .profesor-email {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin-left: 16px;
+        font-style: italic;
+        padding: 4px 8px;
+        background: rgba(100, 116, 139, 0.1);
+        border-radius: 6px;
+      }
+
+      /* Mensajes de no encontrado */
+      .no-results {
+        text-align: center;
+        padding: 30px 20px;
+        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        border-radius: 12px;
+        border: 2px dashed #cbd5e0;
+        color: #64748b;
+        font-size: 1.1rem;
+        font-weight: 500;
+        font-style: italic;
+      }
+
+      /* Badge de disponibilidad */
+      .availability-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .available {
+        background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
+        color: #22543d;
+      }
+
+      .unavailable {
+        background: linear-gradient(135deg, #fed7d7, #feb2b2);
+        color: #742a2a;
+      }
+
+      /* Responsivo */
+      @media (max-width: 768px) {
+        .main-container {
+          padding-top: 60px;
+          margin: 0 15px;
+        }
+
+        h1 {
+          font-size: 2.2rem;
+          margin-bottom: 40px;
+        }
+
+        .results-section {
+          padding: 25px 20px;
+        }
+
+        #inicio {
+          top: 20px;
+          left: 20px;
+        }
+
+        #inicio a {
+          padding: 10px 18px;
+          font-size: 0.9rem;
+        }
+
+        .profesor-email {
+          display: none;
+        }
+      }
+
+      @media (max-width: 480px) {
+        h1 {
+          font-size: 1.8rem;
+        }
+
+        h2 {
+          font-size: 1.5rem;
+        }
+
+        li {
+          padding: 14px 16px;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+
+        .status-indicator {
+          margin-right: 8px;
+          margin-bottom: 0;
+        }
+
+        li a {
+          font-size: 1rem;
+        }
+
+        .availability-badge {
+          margin-left: 0;
+          margin-top: 4px;
+        }
+      }
+
+      /* Animaciones de entrada escalonadas */
+      .results-section:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+
+      .results-section:nth-child(3) {
+        animation-delay: 0.2s;
+      }
+
+      /* Indicador de actualización MQTT */
+      .updating {
+        opacity: 0.7;
+        pointer-events: none;
+      }
+
+      .mqtt-indicator {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(77, 138, 213, 0.9);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        z-index: 1000;
+        display: none;
+        animation: slideInUp 0.3s ease-out;
+      }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
   </head>
   <body>
+    <div class="mqtt-indicator" id="mqttIndicator">
+      Actualizando estados...
+    </div>
+
     <header>
       <div id="inicio"><a href="/">Inicio</a></div>
     </header>
 
-    <h1>Resultados de Búsqueda para: "<%= searchTerm %>"</h1>
+    <div class="main-container">
+      <h1>Resultados de Búsqueda para: "<%= searchTerm %>"</h1>
 
-    <% if (error) { %>
-    <p class="error-message"><%= error %></p>
-    <%# Muestra mensaje de error si existe %> <% } %> <%# Sección de Profesores
-    %>
-    <div class="results-section">
-      <h2>Profesores Encontrados</h2>
-      <% if (profesores && profesores.length > 0) { %>
-      <ul>
-        <% profesores.forEach(profesor => { %>
-        <li
-          class="profesor-item"
-          data-profesor-id="<%= profesor.profesor_id %>"
-        >
-          <span
-            class="status-indicator <%= profesor.isentry ? 'status-active' : 'status-inactive' %>"
-          >
-          </span>
-          <a href="/profesor/<%= profesor.profesor_id %>"
-            ><%= profesor.nombre %></a
-          >
-          <% if (profesor.email) { %>
-          <span class="profesor-email"><%= profesor.email %></span>
-          <% } %>
-        </li>
-
-        <% }); %>
-      </ul>
-      <% } else if (!error) { %> <%# Solo muestra "no encontrado" si no hubo un
-      error general %>
-      <p>No se encontraron profesores con ese nombre.</p>
+      <% if (error) { %>
+      <div class="error-message"><%= error %></div>
       <% } %>
+
+      <!-- Sección de Profesores -->
+      <div class="results-section">
+        <h2>Profesores Encontrados</h2>
+        <% if (profesores && profesores.length > 0) { %>
+        <ul>
+          <% profesores.forEach(profesor => { %>
+          <li
+            class="profesor-item"
+            data-profesor-id="<%= profesor.profesor_id %>"
+          >
+            <span
+              class="status-indicator <%= profesor.isentry ? 'status-active' : 'status-inactive' %>"
+              title="<%= profesor.isentry ? 'Disponible' : 'No disponible' %>"
+            ></span>
+            <a href="/profesor/<%= profesor.profesor_id %>">
+              <%= profesor.nombre %>
+            </a>
+            <span class="availability-badge <%= profesor.isentry ? 'available' : 'unavailable' %>">
+              <%= profesor.isentry ? 'Disponible' : 'No disponible' %>
+            </span>
+            <% if (profesor.email) { %>
+            <span class="profesor-email"><%= profesor.email %></span>
+            <% } %>
+          </li>
+          <% }); %>
+        </ul>
+        <% } else if (!error) { %>
+        <div class="no-results">
+          <p>No se encontraron profesores con ese término de búsqueda.</p>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Sección de Materias -->
+      <div class="results-section">
+        <h2>Materias Encontradas</h2>
+        <% if (materias && materias.length > 0) { %>
+        <ul>
+          <% materias.forEach(materia => { %>
+          <li>
+            <a href="/materia/<%= materia.materia_id %>">
+              <%= materia.nombre %>
+            </a>
+          </li>
+          <% }); %>
+        </ul>
+        <% } else if (!error) { %>
+        <div class="no-results">
+          <p>No se encontraron materias con ese término de búsqueda.</p>
+        </div>
+        <% } %>
+      </div>
     </div>
 
-    <%# Sección de Materias %>
-    <div class="results-section">
-      <h2>Materias Encontradas</h2>
-      <% if (materias && materias.length > 0) { %>
-      <ul>
-        <% materias.forEach(materia => { %>
-        <li>
-          <a href="/materia/<%= materia.materia_id %>">
-            <%# Asume ruta /materia/:id %> <%= materia.nombre %>
-          </a>
-        </li>
-        <% }); %>
-      </ul>
-      <% } else if (!error) { %> <%# Solo muestra "no encontrado" si no hubo un
-      error general %>
-      <p>No se encontraron materias con ese nombre.</p>
-      <% } %>
-    </div>
+    <!-- MQTT.js desde CDN -->
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <script>
-      // ARREGLAR LA LUCECITA CUANDO ABRO POR PRIMERA VEZ APP.JS
+      const mqttIndicator = document.getElementById('mqttIndicator');
+
+      // Función para mostrar indicador MQTT
+      function showMqttIndicator() {
+        if (mqttIndicator) {
+          mqttIndicator.style.display = 'block';
+          setTimeout(() => {
+            mqttIndicator.style.display = 'none';
+          }, 2000);
+        }
+      }
+
       const client = mqtt.connect("ws://54.80.230.215:9001");
 
       client.on("connect", () => {
@@ -73,20 +474,61 @@
       });
 
       client.on("message", (topic, message) => {
-        const data = JSON.parse(message.toString());
+        try {
+          const data = JSON.parse(message.toString());
+          console.log("Estado actualizado:", data);
 
-        const li = document.querySelector(
-          `li[data-profesor-id='${data.profesor_id}']`
-        );
-        if (!li) return;
+          // Mostrar indicador
+          showMqttIndicator();
 
-        const dot = li.querySelector(".status-indicator");
-        if (!dot) return;
+          const li = document.querySelector(
+            `li[data-profesor-id='${data.profesor_id}']`
+          );
+          if (!li) return;
 
-        dot.classList.remove("status-active", "status-inactive");
-        dot.classList.add(
-          data.evento === "entrada" ? "status-active" : "status-inactive"
-        );
+          const dot = li.querySelector(".status-indicator");
+          const badge = li.querySelector(".availability-badge");
+          
+          if (dot) {
+            dot.classList.remove("status-active", "status-inactive");
+            dot.classList.add(
+              data.evento === "entrada" ? "status-active" : "status-inactive"
+            );
+            
+            // Actualizar tooltip
+            dot.title = data.evento === "entrada" ? "Disponible" : "No disponible";
+          }
+
+          if (badge) {
+            badge.classList.remove("available", "unavailable");
+            badge.classList.add(
+              data.evento === "entrada" ? "available" : "unavailable"
+            );
+            badge.textContent = data.evento === "entrada" ? "Disponible" : "No disponible";
+          }
+
+          // Animación de actualización
+          li.classList.add('updating');
+          setTimeout(() => {
+            li.classList.remove('updating');
+          }, 500);
+
+        } catch (error) {
+          console.error("Error procesando mensaje MQTT:", error);
+        }
+      });
+
+      client.on("error", (error) => {
+        console.error("Error de conexión MQTT:", error);
+      });
+
+      // Animaciones de entrada
+      document.addEventListener('DOMContentLoaded', function() {
+        const listItems = document.querySelectorAll('li');
+        listItems.forEach((item, index) => {
+          item.style.animationDelay = `${0.1 * index}s`;
+          item.style.animation = 'slideUp 0.6s ease-out both';
+        });
       });
     </script>
   </body>
