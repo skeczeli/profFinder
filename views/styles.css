@@ -334,3 +334,36 @@ button:active {
 .status-inactive {
   background-color: red;
 }
+
+/* Características destacadas */
+.features {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.feature {
+  text-align: center;
+  opacity: 0.8;
+}
+
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #4d8ad5, #667eea);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.feature-text {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
