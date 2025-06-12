@@ -339,6 +339,38 @@
               />
             </div>
 
+            <div class="form-group">
+              <label for="profesor_id" class="form-label">ID del Profesor</label>
+              <input
+                type="text"
+                class="form-control"
+                id="profesor_id"
+                name="profesor_id"
+                value="<%= profesor.profesor_id || '' %>"
+                disabled
+                style="background: #f1f5f9; color: #64748b; cursor: not-allowed;"
+              />
+              <small class="form-text">
+                Este campo no puede ser modificado
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label for="card_id" class="form-label">ID de la Tarjeta</label>
+              <input
+                type="text"
+                class="form-control"
+                id="card_id"
+                name="card_id"
+                value="<%= profesor.card_id || '' %>"
+                placeholder="Ej: A1B2C3D4"
+                maxlength="20"
+              />
+              <small class="form-text">
+                ID único de la tarjeta RFID del profesor (opcional)
+              </small>
+            </div>
+
             <div class="btn-row">
               <a href="/db_admin" class="btn btn-secondary">Cancelar</a>
               <button type="submit" class="btn btn-primary">
@@ -365,6 +397,14 @@
 
       // Focus automático en el primer input
       document.getElementById('nombre').focus();
+
+      // Validación para el card_id (solo caracteres alfanuméricos)
+      const cardIdInput = document.getElementById('card_id');
+      
+      cardIdInput.addEventListener('input', function() {
+        // Remover caracteres que no sean letras o números
+        this.value = this.value.replace(/[^A-Za-z0-9]/g, '');
+      });
     </script>
   </body>
 </html>
