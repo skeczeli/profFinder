@@ -402,64 +402,59 @@ app.get("/admin/profesores/editar/:id", requireAuth, async (req, res) => {
 // Ruta para procesar la actualización de un profesor
 app.post("/admin/profesores/actualizar/:id", requireAuth, async (req, res) => {
   const profesorId = req.params.id;
-  const { nombre, email, tarjeta_id, materias } = req.body;
-
-  // Validación básica
-  if (!nombre || !tarjeta_id) {
-    return res.status(400).render("profesor_editar", {
-      profesor: { profesor_id: profesorId, nombre, email, tarjeta_id },
-      materias: [],
-      materiasAsignadas: materias || [],
-      error: "El nombre y el ID de tarjeta son obligatorios",
-    });
-  }
+  const { nombre, email, tarjeta_id } = req.body;
 
   try {
-    // Verificar si el tarjeta_id ya está en uso por otro profesor
-    const existingProf = await db.query(
-      "SELECT profesor_id FROM profesores WHERE tarjeta_id = $1 AND profesor_id != $2",
-      [tarjeta_id, profesorId]
+    // Obtener los datos actuales del profesor
+    const currentData = await db.query(
+      "SELECT nombre, email, tarjeta_id FROM profesores WHERE profesor_id = $1",
+      [profesorId]
     );
 
-    if (existingProf.rows.length > 0) {
-      // Volver a cargar todos los datos necesarios para el formulario
-      const allMaterias = await db.queryAll(
-        "SELECT materia_id, nombre FROM materias ORDER BY nombre ASC"
+    if (currentData.rows.length === 0) {
+      return res.status(404).render("error", {
+        message: "Profesor no encontrado",
+        error: { status: 404 },
+      });
+    }
+
+    const current = currentData.rows[0];
+
+    // Usar valores actuales si los nuevos están vacíos - NADA ES OBLIGATORIO
+    const updatedNombre = nombre && nombre.trim() ? nombre.trim() : current.nombre;
+    const updatedEmail = email !== undefined ? (email.trim() || null) : current.email;
+    const updatedTarjetaId = tarjeta_id && tarjeta_id.trim() ? tarjeta_id.trim().toUpperCase() : current.tarjeta_id;
+
+    // Verificar si el tarjeta_id ya está en uso por otro profesor (solo si cambió)
+    if (updatedTarjetaId && updatedTarjetaId !== current.tarjeta_id) {
+      const existingProf = await db.query(
+        "SELECT profesor_id FROM profesores WHERE tarjeta_id = $1 AND profesor_id != $2",
+        [updatedTarjetaId, profesorId]
       );
 
-      return res.status(400).render("profesor_editar", {
-        profesor: { profesor_id: profesorId, nombre, email, tarjeta_id },
-        materias: allMaterias,
-        materiasAsignadas: materias || [],
-        error: "Ya existe otro profesor con ese ID de tarjeta",
-      });
+      if (existingProf.rows.length > 0) {
+        return res.status(400).render("profesor_editar", {
+          profesor: { 
+            profesor_id: profesorId, 
+            nombre: nombre, 
+            email: email, 
+            tarjeta_id: tarjeta_id 
+          },
+          error: "Ya existe otro profesor con ese ID de tarjeta",
+        });
+      }
     }
 
     // Actualizar los datos del profesor
     await db.query(
       "UPDATE profesores SET nombre = $1, email = $2, tarjeta_id = $3 WHERE profesor_id = $4",
-      [nombre, email, tarjeta_id, profesorId]
+      [updatedNombre, updatedEmail, updatedTarjetaId, profesorId]
     );
-
-    // Gestionar la asignación de materias si se proporcionan
-    if (materias && Array.isArray(materias)) {
-      // Eliminar todas las asignaciones actuales
-      await db.query("DELETE FROM profesor_materia WHERE profesor_id = $1", [
-        profesorId,
-      ]);
-
-      // Insertar las nuevas asignaciones
-      for (const materiaId of materias) {
-        await db.query(
-          "INSERT INTO profesor_materia (profesor_id, materia_id) VALUES ($1, $2)",
-          [profesorId, materiaId]
-        );
-      }
-    }
 
     // Redirigir al panel de administración
     req.session.message = "Profesor actualizado correctamente";
     res.redirect("/db_admin");
+    
   } catch (err) {
     console.error("Error al actualizar profesor:", err);
     res.status(500).render("error", {
